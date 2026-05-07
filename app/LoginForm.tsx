@@ -18,14 +18,16 @@ export default function LoginForm() {
       window.location.reload();
       return;
     }
-    setError('Senha inválida.');
+    setError('Senha inválida. Se você não configurou variável na Vercel, use johnny123.');
   }
 
   return (
     <div className="loginWrap">
       <form className="loginCard" onSubmit={handleSubmit}>
         <h1 className="loginTitle">JOHNNY DASH</h1>
-        <div className="loginSub">Acesso privado ao seu dashboard premium.</div>
+        <div className="loginSub">
+          Acesso privado ao seu dashboard premium. Senha padrão de teste: <strong>johnny123</strong>.
+        </div>
         <input
           className="loginInput"
           type="password"

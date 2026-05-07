@@ -1,26 +1,33 @@
-# Johnny Dash V17
+# Johnny Dash V18
 
-Versão revisada com:
-- layout mais próximo do modelo premium
-- login privado com senha
-- botão ocultar valores
-- leitura real da aba `updates` do Google Sheets
-- regra para usar sempre a última coluna com a data mais atual
-- mais detalhes em Bitcoin, dólar, clima e análise de mercado
-- badges visuais para empresas
+Versão refeita com:
+- correção do problema de senha
+- senha padrão de teste: johnny123
+- suporte ao link aberto do Google Sheets
+- leitura da aba `updates` por nome e também por GID
+- fallback se a planilha ainda não permitir CSV público
+- layout premium com mais detalhes
 
 ## Variáveis na Vercel
+
+Obrigatória se quiser trocar a senha:
 DASHBOARD_PASSWORD=sua_senha
+
+Recomendadas para a planilha:
 GOOGLE_SHEET_ID=1uUV1LzOP5Q68vuPkD8VUVSiSAetv_v2rsPylVO4CWzY
 GOOGLE_UPDATES_GID=1622609470
+GOOGLE_UPDATES_SHEET=updates
 
-## Como essa leitura funciona
-A API `/api/sheet-summary` lê a aba `updates` via CSV do Google Sheets e:
-1. encontra a linha com as datas
-2. localiza a última coluna com data preenchida
-3. usa essa coluna como base mais atual
-4. monta um resumo por categoria
-5. usa a linha `Total` para montar a série histórica
+## Senha
 
-## Observação
-Se a planilha não estiver acessível publicamente para leitura, o sistema cai em dados de fallback.
+Se você não configurar `DASHBOARD_PASSWORD`, a senha será:
+johnny123
+
+## Testes depois do deploy
+
+1. Abra o site e entre com a senha.
+2. Teste a leitura da planilha:
+   /api/sheet-summary
+
+Se aparecer `connected: true`, está lendo o Google Sheets.
+Se aparecer fallback, a planilha ainda não está liberando CSV público.
