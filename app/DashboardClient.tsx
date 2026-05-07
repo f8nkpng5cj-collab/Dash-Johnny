@@ -123,7 +123,7 @@ export default function DashboardClient() {
             <div className="legend"><div><span className="lineChip"></span> Patrimônio projetado por categoria</div><div><span className="dotChip"></span> Aportes Forecast</div><div><span className="segChip"></span> Tooltip ao passar o mouse</div></div>
             <div className="chart" onMouseMove={onChartMove} onMouseLeave={() => setHover(null)}>
               <svg viewBox="0 0 900 330" preserveAspectRatio="none">
-                {chart.ticks.map((t:any,i:number)=><g key={i}><line x1="48" x2="870" y1={t.y} y2={t.y} stroke="rgba(255,255,255,.06)" /><text x="8" y={t.y+4} className="axisText">{Math.round(t.value/1000)}k</text></g>)}
+                {chart.ticks.map((t:any,i:number)=><g key={i}><line x1="48" x2="870" y1={t.y} y2={t.y} stroke="rgba(255,255,255,.06)" /><text x="8" y={t.y+4} className="axisText">{show ? `${Math.round(t.value/1000)}k` : ''}</text></g>)}
                 <path d={chart.sub} fill="none" stroke="rgba(255,255,255,.72)" strokeWidth="2" strokeDasharray="4 4" />
                 <path d={chart.main} fill="none" stroke="#ffffff" strokeWidth="3.2" />
                 {chart.map.map((p:any,idx:number)=><circle key={idx} cx={p.x} cy={p.y1} r={hover?.month===p.month?6:4} fill="#fff" />)}
@@ -131,7 +131,7 @@ export default function DashboardClient() {
               </svg>
               {hover && <div className="tooltip" style={{left:Math.min(hover.left+10,520),top:Math.max(hover.top-30,10)}}><div className="tipTitle">{hover.month}</div><div className="tipRow"><span>Patrimônio</span><strong>{show?money(Number(hover.total)):'••••••'}</strong></div><div className="tipRow"><span>Aporte acumulado</span><strong>{show?money(Number(hover.contribution||0)):'••••••'}</strong></div><div className="tipRow"><span>Aporte do mês</span><strong>{show?money(Number(hover.monthlyContribution||0)):'••••••'}</strong></div><div style={{marginTop:8,color:'#bbb'}}>Principais categorias:</div>{topSegments(hover.segments).map(([k,v]:any,idx:number)=><div className="tipRow" key={idx}><span>{k}</span><strong>{show?money(Number(v)):'••••••'}</strong></div>)}</div>}
             </div>
-            <div className="note">A base oficial agora aparece como <strong>{hideInvestment(show, money(totalAtual))}</strong>, incluindo FGTS e proposta quando vierem no Total da planilha. A projeção aplica uma taxa conservadora em todas as categorias, inclusive Investimentos USA, Cript, FGTS, fixa, VGBL, COE, fundos e caixa.</div>
+            <div className="note">A base oficial agora aparece como <strong>{hideInvestment(show, money(totalAtual))}</strong>, incluindo FGTS e proposta quando vierem no Total da planilha. A projeção usa 4% ao ano para Investimentos USA, 3% ao ano para FGTS e considera aporte mensal de R$ 2.700 no FGTS. Ao ocultar, os valores do eixo do gráfico também somem.</div>
           </div>
 
           <div className="card">
@@ -150,7 +150,7 @@ export default function DashboardClient() {
           <div className="card">
             <div className="titleRow"><h3>Projeção por categoria até Dez/2027</h3><span className={sheet?.connected?'good':'warn'}>{sheet?.connected?'▣ Dados da planilha':'Fallback'}</span></div>
             <table className="table"><thead><tr><th>Categoria</th><th>Hoje</th><th>Taxa mensal</th><th>Dez/2027</th><th>Crescimento</th></tr></thead><tbody>{categoryProjection.slice(0,12).map((r:any,i:number)=><tr key={i}><td>{r.name}</td><td>{show?money(Number(r.current)):'••••••'}</td><td>{(Number(r.monthlyRate)*100).toFixed(2)}%</td><td>{show?money(Number(r.endValue)):'••••••'}</td><td>{show?money(Number(r.growth)):'••••••'}</td></tr>)}</tbody></table>
-            <div className="hint">Taxas conservadoras por categoria: USA e ações com crescimento moderado, fixa/fundos/VGBL/COE com renda fixa aproximada, FGTS conservador, Cript mais alta mas limitada.</div>
+            <div className="hint">Premissas: Investimentos USA em 4% ao ano, FGTS em 3% ao ano + R$ 2.700/mês, renda fixa/fundos/VGBL/COE conservadores, Cript limitada para não distorcer a projeção.</div>
           </div>
 
           <div className="card">

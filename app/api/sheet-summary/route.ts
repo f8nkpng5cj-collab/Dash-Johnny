@@ -42,12 +42,23 @@ function monthKey(d: Date) { return `${d.getUTCFullYear()}-${String(d.getUTCMont
 function formatMonth(d: Date) { return d.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit', timeZone: 'UTC' }).replace('.', ''); }
 function clamp(n: number, min: number, max: number) { return Math.max(min, Math.min(max, n)); }
 
+function annualToMonthly(rate: number) {
+  return Math.pow(1 + rate, 1 / 12) - 1;
+}
+
 function segmentDefaults(name: string) {
   const s = name.toLowerCase();
+
+  // Premissas fixas solicitadas:
+  // Investimentos USA: 4% ao ano
+  // FGTS: 3% ao ano
+  if (s.includes('usa')) return { def: annualToMonthly(0.04), min: annualToMonthly(0.04), max: annualToMonthly(0.04) };
+  if (s.includes('fgts')) return { def: annualToMonthly(0.03), min: annualToMonthly(0.03), max: annualToMonthly(0.03) };
+
+  // Premissas conservadoras para os demais blocos.
   if (s.includes('cript') || s.includes('bitcoin')) return { def: 0.012, min: -0.03, max: 0.035 };
-  if (s.includes('usa') || s.includes('ações') || s.includes('acao')) return { def: 0.008, min: -0.015, max: 0.018 };
+  if (s.includes('ações') || s.includes('acao')) return { def: 0.008, min: -0.015, max: 0.018 };
   if (s.includes('saldo') || s.includes('cofre') || s.includes('moeda')) return { def: 0.0055, min: 0, max: 0.008 };
-  if (s.includes('fgts')) return { def: 0.0035, min: 0, max: 0.006 };
   if (s.includes('fixa') || s.includes('fundo') || s.includes('coe') || s.includes('vgbl')) return { def: 0.0078, min: 0.002, max: 0.012 };
   return { def: 0.0065, min: 0, max: 0.014 };
 }
@@ -105,18 +116,53 @@ function fallback(source = 'fallback') {
 function makeProjection(latest: any, rates: Record<string, number>, forecastContributions: ForecastContribution[], startDate: Date) {
   const aportesMap = new Map(forecastContributions.map(a => [a.key, a.value]));
   const blendedRate = weightedAverageRate(latest, rates);
+  const fgtsMonthlyContribution = Number(process.env.FGTS_MONTHLY_CONTRIBUTION || '2700') || 2700;
   const end = new Date(Date.UTC(2027, 11, 1));
   const start = new Date(Date.UTC(startDate.getUTCFullYear(), startDate.getUTCMonth(), 1));
   const projection: any[] = [];
-  let m = new Date(start), step = 0, contributionBucket = 0, cumulativeContribution = 0;
+  let m = new Date(start), step = 0, contributionBucket = 0, fgtsBucket = 0, cumulativeContribution = 0;
   while (m <= end && step < 36) {
     const key = monthKey(m), monthlyAporte = aportesMap.get(key) || 0;
-    if (step > 0) { contributionBucket = contributionBucket * (1 + blendedRate) + monthlyAporte; cumulativeContribution += monthlyAporte; }
-    const segments: any = {}; let total = 0;
-    for (const [name, base] of Object.entries(latest)) { if (name.toLowerCase() === 'total') continue; const r = rates[name] ?? segmentDefaults(name).def; const v = Math.round(Number(base) * Math.pow(1 + r, step)); segments[name] = v; total += v; }
-    if (contributionBucket > 0) { segments['Aportes Forecast'] = Math.round(contributionBucket); total += contributionBucket; }
-    projection.push({ month: formatMonth(m), total: Math.round(total), contribution: Math.round(cumulativeContribution), monthlyContribution: monthlyAporte, segments });
-    m = new Date(Date.UTC(m.getUTCFullYear(), m.getUTCMonth() + 1, 1)); step++;
+
+    if (step > 0) {
+      contributionBucket = contributionBucket * (1 + blendedRate) + monthlyAporte;
+      fgtsBucket = fgtsBucket * (1 + segmentDefaults('FGTS').def) + fgtsMonthlyContribution;
+      cumulativeContribution += monthlyAporte + fgtsMonthlyContribution;
+    }
+
+    const segments: any = {};
+    let total = 0;
+
+    for (const [name, base] of Object.entries(latest)) {
+      if (name.toLowerCase() === 'total') continue;
+
+      const r = rates[name] ?? segmentDefaults(name).def;
+      let v = Math.round(Number(base) * Math.pow(1 + r, step));
+
+      if (name.toLowerCase().includes('fgts')) {
+        v += Math.round(fgtsBucket);
+      }
+
+      segments[name] = v;
+      total += v;
+    }
+
+    if (contributionBucket > 0) {
+      segments['Aportes Forecast'] = Math.round(contributionBucket);
+      total += contributionBucket;
+    }
+
+    projection.push({
+      month: formatMonth(m),
+      total: Math.round(total),
+      contribution: Math.round(cumulativeContribution),
+      monthlyContribution: monthlyAporte + (step > 0 ? fgtsMonthlyContribution : 0),
+      fgtsMonthlyContribution: step > 0 ? fgtsMonthlyContribution : 0,
+      segments
+    });
+
+    m = new Date(Date.UTC(m.getUTCFullYear(), m.getUTCMonth() + 1, 1));
+    step++;
   }
   return projection;
 }

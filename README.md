@@ -34,3 +34,13 @@ Correção específica:
 - Se houver inconsistência no Total, ela recalcula pela soma das categorias.
 - Se uma coluna posterior estiver errada e houver uma coluna recente com total materialmente maior, usa o total consistente.
 - Resolve o caso em que aparecia R$ 634.374 em vez de R$ 748.949.
+
+
+## V25 Rates, FGTS and Hide Axis
+
+Atualização solicitada:
+- Investimentos USA fixados em 4% ao ano.
+- FGTS fixado em 3% ao ano.
+- Aporte mensal de FGTS considerado em R$ 2.700.
+- Variável opcional: `FGTS_MONTHLY_CONTRIBUTION=2700`.
+- Ao ocultar valores, os valores do eixo Y do gráfico também são ocultados.
