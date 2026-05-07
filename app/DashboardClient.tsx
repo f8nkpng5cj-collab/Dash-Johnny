@@ -96,7 +96,7 @@ export default function DashboardClient() {
       <aside className="sidebar">
         <div className="logoTop">
           <div className="logoBadge">
-            <img src="/assets/corinthians-badge.svg" alt="Corinthians badge" />
+            <img src="/assets/corinthians-real.png" alt="Corinthians badge" />
             <div>
               <div className="brand">JOHNNY DASH</div>
               <div className="brandMini">Foco, disciplina e execução</div>
@@ -108,41 +108,55 @@ export default function DashboardClient() {
           <div className="item active"><span className="ico"></span> DASHBOARD</div><div className="item"><span className="ico"></span> PROJEÇÃO</div><div className="item"><span className="ico"></span> CONTROLE</div><div className="item"><span className="ico"></span> NOTÍCIAS</div><div className="item"><span className="ico"></span> MERCADO</div><div className="item"><span className="ico"></span> CLIMA</div><div className="item"><span className="ico"></span> RELATÓRIOS</div><div className="item"><span className="ico"></span> CONFIGURAÇÕES</div>
         </div>
         <div className="sidebarTheme">
-          <div className="sidebarThemeRow"><img src="/assets/corinthians-badge.svg" alt="Corinthians" /><span>Corinthians, alma competitiva</span></div>
-          <div className="sidebarThemeRow"><img src="/assets/resident-mark.svg" alt="Resident Evil inspired" /><span>Resident Evil, clima tático e sombrio</span></div>
-          <div className="sidebarThemeRow"><img src="/assets/godofwar-mark.svg" alt="God of War inspired" /><span>God of War, força e disciplina</span></div>
+          <div className="sidebarThemeRow"><img src="/assets/corinthians-real.png" alt="Corinthians" /><span>Corinthians, identidade e raça</span></div>
+          <div className="sidebarThemeRow"><img src="/assets/leon-real.jpg" alt="Leon, Resident Evil" /><span>Leon S. Kennedy, estética tática</span></div>
+          <div className="sidebarThemeRow"><img src="/assets/gow-omega.jpg" alt="God of War" /><span>God of War, força e presença épica</span></div>
         </div>
         <div className="sideBottom"><strong>Corinthians</strong><br />“Disciplina é fazer o que tem que ser feito, mesmo quando você não está motivado.”</div>
       </aside>
 
       <main className="main">
-        <section className="hero">
+        <section className="hero heroReal">
           <div className="nerdStage">
-            <img className="watermarkImg watermarkBio" src="/assets/resident-mark.svg" alt="Resident Evil inspired watermark" />
-            <img className="watermarkImg watermarkBall" src="/assets/football-mark.svg" alt="Football watermark" />
-            <img className="watermarkImg watermarkWar" src="/assets/godofwar-mark.svg" alt="God of War inspired watermark" />
-            <img className="watermarkImg watermarkCor" src="/assets/corinthians-badge.svg" alt="Corinthians watermark" />
+            <img className="heroBgWide" src="/assets/gow-valhalla.webp" alt="God of War background" />
+            <img className="watermarkImg watermarkBioReal" src="/assets/leon-real.jpg" alt="Leon watermark" />
+            <img className="watermarkImg watermarkBallReal" src="/assets/gow-omega.jpg" alt="Omega watermark" />
+            <img className="watermarkImg watermarkWarReal" src="/assets/gow-ragnarok.jpg" alt="God of War watermark" />
+            <img className="watermarkImg watermarkCorReal" src="/assets/corinthians-real.png" alt="Corinthians watermark" />
           </div>
           <div className="heroSplit">
             <div className="heroInner">
-              <h1>JOHNNY DASH</h1><p>Foco, disciplina e execução</p><div className="signature">Mercado, disciplina, futebol e cultura nerd, em um dashboard premium.</div>
+              <div className="logoBadge realBadge">
+                <img src="/assets/corinthians-real.png" alt="Corinthians" />
+                <div>
+                  <h1>JOHNNY DASH</h1>
+                  <p>Foco, disciplina e execução</p>
+                </div>
+              </div>
+              <div className="signature">Dashboard premium, com mercado, projeções, futebol e cultura nerd, usando suas imagens reais como identidade visual.</div>
               <div className="nerdChips">
                 <div className="nerdChip">Corinthians</div>
-                <div className="nerdChip">Resident Evil</div>
                 <div className="nerdChip">Leon S. Kennedy</div>
+                <div className="nerdChip">Resident Evil</div>
                 <div className="nerdChip">God of War</div>
+                <div className="nerdChip">Ragnarök</div>
               </div>
-              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:16}}><button className="hide" onClick={() => setShow(v => !v)}>{show ? 'Ocultar investimentos' : 'Mostrar investimentos'}</button><button className="ghost" onClick={logout}>Sair</button></div>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:16,gap:12,flexWrap:'wrap'}}>
+                <button className="hide" onClick={() => setShow(v => !v)}>{show ? 'Ocultar investimentos' : 'Mostrar investimentos'}</button>
+                <button className="ghost" onClick={logout}>Sair</button>
+              </div>
             </div>
             <div className="heroArtWrap">
-              <div className="heroArtCard">
-                <img src="/assets/leon-card.svg" alt="Leon S. Kennedy inspired panel" />
-                <div className="cornerBadge badgeCorinthians"><img src="/assets/corinthians-badge.svg" alt="Corinthians" /><div><strong>Corinthians</strong><span>Identidade visual</span></div></div>
-                <div className="cornerBadge badgeWar"><img src="/assets/godofwar-mark.svg" alt="God of War" /><div><strong>God of War</strong><span>Força e foco</span></div></div>
+              <div className="heroArtCard realHeroCard">
+                <img src="/assets/leon-real.jpg" alt="Leon S. Kennedy" />
+                <div className="cornerBadge badgeCorinthians"><img src="/assets/corinthians-real.png" alt="Corinthians" /><div><strong>Corinthians</strong><span>Minha identidade</span></div></div>
+                <div className="cornerBadge badgeWar"><img src="/assets/gow-omega.jpg" alt="God of War" /><div><strong>God of War</strong><span>Força e foco</span></div></div>
               </div>
             </div>
           </div>
-          <div className="water1">S.T.A.R.S.</div><div className="water2"><strong>LEON S. KENNEDY</strong><span>Mission: survive</span></div><div className="ball"></div>
+          <div className="water1">S.T.A.R.S. • RAGNARÖK • SCCP</div>
+          <div className="water2"><strong>LEON S. KENNEDY</strong><span>Mission: survive</span></div>
+          <div className="ball"></div>
         </section>
 
         <section className="topStats">
@@ -196,9 +210,9 @@ export default function DashboardClient() {
         </section>
 
         <section className="miniThemedGrid">
-          <div className="card themeCard"><h4>Corinthians</h4><p>Presença visual mais forte com escudo, marca d'água e identidade preto e branco.</p><img src="/assets/corinthians-badge.svg" alt="Corinthians themed card" /></div>
-          <div className="card themeCard"><h4>Resident Evil</h4><p>Painel do Leon, selo S.T.A.R.S. e marca d'água inspirada em Raccoon City.</p><img src="/assets/resident-mark.svg" alt="Resident Evil themed card" /></div>
-          <div className="card themeCard"><h4>God of War</h4><p>Elemento secundário com símbolo inspirado, trazendo peso visual sem poluir a tela.</p><img src="/assets/godofwar-mark.svg" alt="God of War themed card" /></div>
+          <div className="card themeCard realCard"><h4>Corinthians</h4><p>Escudo real aplicado na identidade do dashboard, com presença visual mais forte e premium.</p><img src="/assets/corinthians-real.png" alt="Corinthians themed card" /></div>
+          <div className="card themeCard realCard"><h4>Resident Evil</h4><p>Leon como destaque principal, trazendo o clima tático e sombrio que você pediu.</p><img src="/assets/leon-real.jpg" alt="Resident Evil themed card" /></div>
+          <div className="card themeCard realCard"><h4>God of War</h4><p>Elementos de Ragnarök e Valhalla como apoio visual, com o símbolo ômega como detalhe de impacto.</p><img src="/assets/gow-omega.jpg" alt="God of War themed card" /></div>
         </section>
 
         <section className="bottomGrid">

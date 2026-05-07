@@ -61,3 +61,15 @@ Arquivos adicionados:
 - public/assets/godofwar-mark.svg
 - public/assets/resident-mark.svg
 - public/assets/football-mark.svg
+
+
+## V27 User Images Applied
+
+Esta versão usa as imagens enviadas pelo usuário:
+- Corinthians real
+- Leon / Resident Evil
+- God of War Ragnarök
+- God of War Valhalla
+- Ômega de God of War
+
+Os arquivos foram copiados para `public/assets/` e aplicados no layout do dashboard.
