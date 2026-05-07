@@ -19,7 +19,7 @@ Opcional:
 MONTHLY_CONTRIBUTION=1500
 
 ## Senha padrão se não configurar variável
-johnny123
+Saude@26
 
 ## Testar depois do deploy
 /api/sheet-summary
