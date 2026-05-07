@@ -16,6 +16,7 @@ body{
   color:#fff;
 }
 button,input{font:inherit}
+a{color:#fff}
 .loginWrap{
   min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;
   background:radial-gradient(600px 260px at 70% 20%, rgba(255,255,255,.06), transparent 50%),linear-gradient(135deg,#010101,#0a0a0c);
@@ -103,12 +104,13 @@ button,input{font:inherit}
 .badge{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff}
 .badge.fs{background:#1f1f22}.badge.brf{background:#f37021}.badge.rz{background:#9d2cff}.badge.btc{background:#f7931a}.badge.usd{background:#36b56c}
 .news h4{margin:0 0 4px;font-size:13px}.news p{margin:0;font-size:12px;line-height:1.38;color:#e2e2e2}.newsTime{font-size:12px;color:#d0d0d0;text-align:right}
+.newsLink{font-size:11px;color:#fff;text-decoration:underline;opacity:.86;display:inline-block;margin-top:5px}
 .stack{display:flex;flex-direction:column;gap:12px}
 .marketHead{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
 .marketName{display:flex;gap:10px;align-items:center;font-size:14px;font-weight:900;text-transform:uppercase}
 .coin{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900}
 .coin.btc{background:#f7931a}.coin.usd{background:#36b56c}
-.marketVal{font-size:22px;font-weight:900}.up{color:var(--green);font-weight:900}.down{color:var(--red);font-weight:900}
+.marketVal{font-size:22px;font-weight:900}.up{color:var(--green);font-weight:900}.down{color:var(--red);font-weight:900}.neutral{color:var(--amber);font-weight:900}
 .marketMeta{display:flex;justify-content:space-between;gap:12px}
 .spark{height:66px;border-top:1px solid rgba(255,255,255,.07);margin-top:10px;padding-top:8px}
 .spark svg{width:100%;height:58px}.bullets{margin-top:12px;font-size:12px;line-height:1.45;color:#dedede}

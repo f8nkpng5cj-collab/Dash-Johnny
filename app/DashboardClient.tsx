@@ -2,12 +2,12 @@
 
 import { useEffect, useMemo, useState } from 'react';
 
-const news = [
-  { cls: 'fs', badge: 'FS', name: 'FS Florestal', text: 'Monitorar pagamentos realizados, saúde do CRA e novas divulgações operacionais.', date: '06/05/2026', time: '15:30' },
-  { cls: 'brf', badge: 'BRF', name: 'BRF', text: 'Acompanhar resultados, margens, exportação e percepção de risco da companhia.', date: '06/05/2026', time: '14:10' },
-  { cls: 'rz', badge: 'RZ', name: 'Raízen', text: 'Mercado atento ao setor de energia, dívida, reprecificação e notícias de crédito.', date: '06/05/2026', time: '11:45' },
-  { cls: 'btc', badge: '₿', name: 'Bitcoin', text: 'Fluxo em ETFs e juros nos EUA continuam guiando o humor do mercado cripto.', date: '06/05/2026', time: '10:20' },
-  { cls: 'usd', badge: '$', name: 'Dólar', text: 'Câmbio sensível ao fiscal brasileiro, Selic e movimento do FED.', date: '06/05/2026', time: '09:15' }
+const fallbackNews = [
+  { cls: 'fs', badge: 'FS', name: 'FS Florestal', title: 'Monitoramento FS Florestal', text: 'Monitorar pagamentos realizados, saúde do CRA e novas divulgações operacionais.', date: '06/05/2026', link: '#' },
+  { cls: 'brf', badge: 'BRF', name: 'BRF', title: 'Monitoramento BRF', text: 'Acompanhar resultados, margens, exportação e percepção de risco da companhia.', date: '06/05/2026', link: '#' },
+  { cls: 'rz', badge: 'RZ', name: 'Raízen', title: 'Monitoramento Raízen', text: 'Mercado atento ao setor de energia, dívida, reprecificação e notícias de crédito.', date: '06/05/2026', link: '#' },
+  { cls: 'btc', badge: '₿', name: 'Bitcoin', title: 'Bitcoin no radar', text: 'Fluxo em ETFs e juros nos EUA continuam guiando o humor do mercado cripto.', date: '06/05/2026', link: '#' },
+  { cls: 'usd', badge: '$', name: 'Dólar', title: 'Dólar no radar', text: 'Câmbio sensível ao fiscal brasileiro, Selic e movimento do FED.', date: '06/05/2026', link: '#' }
 ];
 
 const weatherDays = [
@@ -43,28 +43,30 @@ const defaultProjection = [
 ];
 
 function money(v:number){ return new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(v || 0); }
-function hideValue(show:boolean, value:string){ return show ? value : '••••••'; }
+function usd(v:number){ return new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(v || 0); }
+function hideInvestment(show:boolean, value:string){ return show ? value : '••••••'; }
 function buildLine(points:{x:number;y:number}[]) { return points.map((p,i)=>`${i===0?'M':'L'} ${p.x} ${p.y}`).join(' '); }
-
 function topSegments(obj:any) {
   if (!obj) return [];
-  return Object.entries(obj)
-    .filter(([k]) => k !== 'Total')
-    .map(([k,v]) => [k, Number(v || 0)] as [string, number])
-    .sort((a,b)=>b[1]-a[1])
-    .slice(0,5);
+  return Object.entries(obj).filter(([k]) => k !== 'Total').map(([k,v]) => [k, Number(v || 0)] as [string, number]).sort((a,b)=>b[1]-a[1]).slice(0,5);
+}
+function trendClass(t:string) {
+  if ((t || '').toLowerCase().includes('alta')) return 'up';
+  if ((t || '').toLowerCase().includes('baixa')) return 'down';
+  return 'neutral';
 }
 
 export default function DashboardClient() {
   const [show, setShow] = useState(true);
   const [sheet, setSheet] = useState<any>(null);
+  const [market, setMarket] = useState<any>(null);
+  const [news, setNews] = useState<any[]>(fallbackNews);
   const [hover, setHover] = useState<any>(null);
 
   useEffect(() => {
-    fetch('/api/sheet-summary')
-      .then(r => r.json())
-      .then(setSheet)
-      .catch(() => setSheet(null));
+    fetch('/api/sheet-summary').then(r => r.json()).then(setSheet).catch(() => setSheet(null));
+    fetch('/api/market').then(r => r.json()).then(setMarket).catch(() => setMarket(null));
+    fetch('/api/news').then(r => r.json()).then(data => setNews(data?.items?.length ? data.items : fallbackNews)).catch(() => setNews(fallbackNews));
   }, []);
 
   const latest = sheet?.latest || defaultLatest;
@@ -79,6 +81,9 @@ export default function DashboardClient() {
   const cript = Number(latest['Cript'] || latest['Cripto'] || defaultLatest['Cript']);
   const invUSA = Number(latest['Investimentos USA'] || defaultLatest['Investimentos USA']);
   const fgts = Number(latest['FGTS'] || defaultLatest['FGTS']);
+
+  const btc = market?.bitcoin || { priceUsd: 62743.58, change24h: 1.28, trend: 'Alta', summary: 'Carregando leitura online...' };
+  const dollar = market?.dollar || { bid: 5.08, pctChange: -0.42, trend: 'Baixa', summary: 'Carregando leitura online...' };
 
   const chart = useMemo(() => {
     const max = Math.max(...projection.map((s:any)=>Number(s.total)), totalAtual, 1000000) * 1.08;
@@ -107,8 +112,6 @@ export default function DashboardClient() {
     window.location.reload();
   }
 
-  const projectionJump = projectionEnd > totalAtual * 1.6;
-
   return (
     <div className="page">
       <aside className="sidebar">
@@ -134,7 +137,7 @@ export default function DashboardClient() {
             <p>Foco, disciplina e execução</p>
             <div className="signature">Acompanhamento financeiro diário, estilo premium.</div>
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:16}}>
-              <button className="hide" onClick={() => setShow(v => !v)}>{show ? 'Ocultar valores' : 'Mostrar valores'}</button>
+              <button className="hide" onClick={() => setShow(v => !v)}>{show ? 'Ocultar investimentos' : 'Mostrar investimentos'}</button>
               <button className="ghost" onClick={logout}>Sair</button>
             </div>
           </div>
@@ -142,21 +145,16 @@ export default function DashboardClient() {
         </section>
 
         <section className="topStats">
-          <div className="card stat"><div className="statIcon">🏦</div><div><div className="kLabel">Patrimônio total</div><div className="kValue">{hideValue(show, money(totalAtual))}</div></div></div>
-          <div className="card stat"><div className="statIcon">↗</div><div><div className="kLabel">Aportes projetados</div><div className="kValue">{hideValue(show, money(aportes))}</div></div></div>
-          <div className="card stat"><div className="statIcon">💲</div><div><div className="kLabel">Valorização estimada</div><div className="kValue">{hideValue(show, money(rendimentos))}</div></div></div>
-          <div className="card stat"><div className="statIcon">🎯</div><div><div className="kLabel">Projeção Dez/2027</div><div className="kValue">{hideValue(show, money(projectionEnd))}</div></div></div>
+          <div className="card stat"><div className="statIcon">🏦</div><div><div className="kLabel">Patrimônio total</div><div className="kValue">{hideInvestment(show, money(totalAtual))}</div></div></div>
+          <div className="card stat"><div className="statIcon">↗</div><div><div className="kLabel">Aportes projetados</div><div className="kValue">{hideInvestment(show, money(aportes))}</div></div></div>
+          <div className="card stat"><div className="statIcon">💲</div><div><div className="kLabel">Valorização estimada</div><div className="kValue">{hideInvestment(show, money(rendimentos))}</div></div></div>
+          <div className="card stat"><div className="statIcon">🎯</div><div><div className="kLabel">Projeção Dez/2027</div><div className="kValue">{hideInvestment(show, money(projectionEnd))}</div></div></div>
         </section>
 
         <section className="grid">
           <div className="card">
             <div className="titleRow"><h3>Projeção patrimonial dinâmica até dez/2027</h3></div>
-            <div className="legend">
-              <div><span className="lineChip"></span> Patrimônio projetado por segmento</div>
-              <div><span className="dotChip"></span> Aportes configurados</div>
-              <div><span className="segChip"></span> Tooltip ao passar o mouse</div>
-            </div>
-
+            <div className="legend"><div><span className="lineChip"></span> Patrimônio projetado por segmento</div><div><span className="dotChip"></span> Aportes configurados</div><div><span className="segChip"></span> Tooltip ao passar o mouse</div></div>
             <div className="chart" onMouseMove={onChartMove} onMouseLeave={() => setHover(null)}>
               <svg viewBox="0 0 900 330" preserveAspectRatio="none">
                 {chart.ticks.map((t:any, i:number)=><g key={i}><line x1="48" x2="870" y1={t.y} y2={t.y} stroke="rgba(255,255,255,.06)" /><text x="8" y={t.y+4} className="axisText">{Math.round(t.value/1000)}k</text></g>)}
@@ -165,7 +163,6 @@ export default function DashboardClient() {
                 {chart.map.map((p:any, idx:number)=><circle key={idx} cx={p.x} cy={p.y1} r={hover?.month === p.month ? 6 : 4} fill="#fff" />)}
                 {chart.map.filter((_:any,i:number)=>i===0 || i===Math.floor(chart.map.length/2) || i===chart.map.length-1).map((p:any,i:number)=><text key={i} x={p.x-18} y="318" className="axisText">{p.month}</text>)}
               </svg>
-
               {hover && (
                 <div className="tooltip" style={{left: Math.min(hover.left + 10, 520), top: Math.max(hover.top - 30, 10)}}>
                   <div className="tipTitle">{hover.month}</div>
@@ -176,38 +173,45 @@ export default function DashboardClient() {
                 </div>
               )}
             </div>
-
             <div className="note">
-              A projeção agora usa <strong>média de valorização por segmento</strong>, calculada a partir do histórico da aba <strong>updates</strong>.
-              O pico arbitrário de Dez/2027 foi removido. Se existir salto, ele vem da média histórica do segmento, com trava para não confundir aporte com rentabilidade.
-              <br />
-              Base lida: <strong>{sheet?.lastDate || '07/05/2026'}</strong>. Método: <strong>{sheet?.methodology || 'segment_average_with_caps'}</strong>.
-              {projectionJump ? <><br /><strong style={{color:'#ffca6a'}}>Atenção:</strong> Dez/2027 ainda parece agressivo. Confira se algum aumento recente foi aporte, e não valorização.</> : null}
+              A projeção usa <strong>média de valorização por segmento</strong>, calculada a partir da aba <strong>updates</strong>.
+              Ao ocultar, somente os valores de investimentos são escondidos. Bitcoin e dólar continuam visíveis.
+              <br />Base: <strong>{sheet?.lastDate || '07/05/2026'}</strong>. Método: <strong>{sheet?.methodology || 'segment_average_with_caps'}</strong>.
             </div>
           </div>
 
           <div className="card">
-            <div className="titleRow"><h3>Notícias & updates</h3><button className="ghost">Ver todas</button></div>
+            <div className="titleRow"><h3>Notícias & links</h3><button className="ghost">Online</button></div>
             <div className="newsList">
-              {news.map((n, i) => <div className="news" key={i}><div className={`badge ${n.cls}`}>{n.badge}</div><div><h4>{n.name}</h4><p>{n.text}</p></div><div className="newsTime">{n.date}<br />{n.time}</div></div>)}
+              {news.slice(0,5).map((n:any, i:number) => (
+                <div className="news" key={i}>
+                  <div className={`badge ${n.cls || 'fs'}`}>{n.badge || 'N'}</div>
+                  <div>
+                    <h4>{n.name || n.source}</h4>
+                    <p>{n.title || n.text}</p>
+                    {n.link ? <a className="newsLink" href={n.link} target="_blank" rel="noreferrer">Abrir matéria ↗</a> : null}
+                  </div>
+                  <div className="newsTime">{n.date || ''}</div>
+                </div>
+              ))}
             </div>
           </div>
 
           <div className="stack">
             <div className="card">
               <div className="marketHead"><div className="marketName"><span className="coin btc">₿</span> Bitcoin (BTC)</div><div style={{fontSize:12,color:'#d4d4d4'}}>Variação 24h</div></div>
-              <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-end'}}><div className="marketVal">{show ? '$ 62.743,58' : '••••••'}</div><div className="up">+1,28%</div></div>
-              <div className="marketMeta"><div><div style={{fontSize:12,color:'#d4d4d4'}}>Tendência</div><div className="up" style={{fontSize:28}}>ALTA ↑</div></div><div style={{fontSize:12,color:'#ddd',textAlign:'right'}}>Viés positivo<br />curto prazo</div></div>
-              <div className="spark"><svg viewBox="0 0 220 58" preserveAspectRatio="none"><path d="M0 46 L15 44 L28 38 L39 36 L52 34 L65 29 L79 32 L94 24 L107 27 L122 18 L137 22 L154 14 L171 16 L188 11 L205 15 L220 6" fill="none" stroke="#1fdb73" strokeWidth="3" /></svg></div>
-              <div className="bullets">• Fluxo institucional e ETFs sustentam o viés positivo.<br />• Principal risco: juros altos por mais tempo nos EUA.<br />• Se perder suporte, volatilidade pode aumentar rápido.</div>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-end'}}><div className="marketVal">{usd(Number(btc.priceUsd))}</div><div className={Number(btc.change24h)>=0?'up':'down'}>{Number(btc.change24h || 0).toFixed(2)}%</div></div>
+              <div className="marketMeta"><div><div style={{fontSize:12,color:'#d4d4d4'}}>Tendência</div><div className={trendClass(btc.trend)} style={{fontSize:28}}>{String(btc.trend || 'Neutra').toUpperCase()} {String(btc.trend).toLowerCase().includes('alta')?'↑':String(btc.trend).toLowerCase().includes('baixa')?'↓':'→'}</div></div><div style={{fontSize:12,color:'#ddd',textAlign:'right'}}>Atualização<br />online</div></div>
+              <div className="spark"><svg viewBox="0 0 220 58" preserveAspectRatio="none"><path d={btc.sparkPath || "M0 40 L25 36 L50 31 L75 35 L100 25 L125 27 L150 18 L175 20 L200 14 L220 10"} fill="none" stroke={Number(btc.change24h)>=0?'#1fdb73':'#ff5264'} strokeWidth="3" /></svg></div>
+              <div className="bullets">{btc.summary}</div>
             </div>
 
             <div className="card">
               <div className="marketHead"><div className="marketName"><span className="coin usd">$</span> Dólar (USD/BRL)</div><div style={{fontSize:12,color:'#d4d4d4'}}>Variação 24h</div></div>
-              <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-end'}}><div className="marketVal">{show ? 'R$ 5,08' : '••••••'}</div><div className="down">-0,42%</div></div>
-              <div className="marketMeta"><div><div style={{fontSize:12,color:'#d4d4d4'}}>Tendência</div><div className="down" style={{fontSize:28}}>BAIXA ↓</div></div><div style={{fontSize:12,color:'#ddd',textAlign:'right'}}>Viés de alívio<br />curto prazo</div></div>
-              <div className="spark"><svg viewBox="0 0 220 58" preserveAspectRatio="none"><path d="M0 14 L15 18 L30 20 L45 23 L60 21 L74 25 L90 28 L104 30 L120 34 L136 37 L152 35 L168 41 L184 43 L201 45 L220 49" fill="none" stroke="#ff5264" strokeWidth="3" /></svg></div>
-              <div className="bullets">• Dólar recua quando há maior apetite a risco.<br />• Fiscal brasileiro, Selic e FED continuam dominantes.<br />• Em piora global, o câmbio pode inverter.</div>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-end'}}><div className="marketVal">R$ {Number(dollar.bid || 0).toFixed(2).replace('.', ',')}</div><div className={Number(dollar.pctChange)>=0?'up':'down'}>{Number(dollar.pctChange || 0).toFixed(2)}%</div></div>
+              <div className="marketMeta"><div><div style={{fontSize:12,color:'#d4d4d4'}}>Tendência</div><div className={trendClass(dollar.trend)} style={{fontSize:28}}>{String(dollar.trend || 'Neutra').toUpperCase()} {String(dollar.trend).toLowerCase().includes('alta')?'↑':String(dollar.trend).toLowerCase().includes('baixa')?'↓':'→'}</div></div><div style={{fontSize:12,color:'#ddd',textAlign:'right'}}>High/Low<br />R$ {Number(dollar.high||0).toFixed(2)} / R$ {Number(dollar.low||0).toFixed(2)}</div></div>
+              <div className="spark"><svg viewBox="0 0 220 58" preserveAspectRatio="none"><path d={dollar.sparkPath || "M0 18 L25 20 L50 24 L75 26 L100 30 L125 35 L150 34 L175 40 L200 44 L220 46"} fill="none" stroke={Number(dollar.pctChange)>=0?'#1fdb73':'#ff5264'} strokeWidth="3" /></svg></div>
+              <div className="bullets">{dollar.summary}</div>
             </div>
           </div>
         </section>
@@ -215,22 +219,14 @@ export default function DashboardClient() {
         <section className="bottomGrid">
           <div className="card">
             <div className="titleRow"><h3>Taxas médias por segmento</h3></div>
-            <table className="table">
-              <thead><tr><th>Segmento</th><th>Média mensal usada</th></tr></thead>
-              <tbody>
-                {Object.entries(rates).slice(0, 10).map(([k,v], i)=><tr key={i}><td>{k}</td><td>{(Number(v)*100).toFixed(2)}%</td></tr>)}
-              </tbody>
-            </table>
-            <div className="hint">Taxas com trava por segmento. Isso evita interpretar entrada de dinheiro como valorização real.</div>
+            <table className="table"><thead><tr><th>Segmento</th><th>Média mensal usada</th></tr></thead><tbody>{Object.entries(rates).slice(0,10).map(([k,v], i)=><tr key={i}><td>{k}</td><td>{(Number(v)*100).toFixed(2)}%</td></tr>)}</tbody></table>
+            <div className="hint">Taxas com trava por segmento para evitar interpretar aporte como valorização.</div>
           </div>
 
           <div className="card">
             <div className="titleRow"><h3>Controle Google Sheets</h3><span className={sheet?.connected ? 'good' : 'warn'}>{sheet?.connected ? '▣ Conectado' : 'Fallback'}</span></div>
-            <table className="table">
-              <thead><tr><th>Categoria</th><th>Último valor</th></tr></thead>
-              <tbody>{Object.entries(latest).filter(([k]) => k !== 'Total').slice(0, 10).map(([k,v], i)=><tr key={i}><td>{k}</td><td>{show ? money(Number(v)) : '••••••'}</td></tr>)}</tbody>
-            </table>
-            <div className="hint">Regra: aba <strong>updates</strong>, última coluna com data válida como base. ID da planilha configurado na Vercel.</div>
+            <table className="table"><thead><tr><th>Categoria</th><th>Último valor</th></tr></thead><tbody>{Object.entries(latest).filter(([k])=>k!=='Total').slice(0,10).map(([k,v], i)=><tr key={i}><td>{k}</td><td>{show ? money(Number(v)) : '••••••'}</td></tr>)}</tbody></table>
+            <div className="hint">Regra: aba <strong>updates</strong>, última coluna com data válida como base.</div>
           </div>
 
           <div className="card">
@@ -243,12 +239,11 @@ export default function DashboardClient() {
           <div className="card">
             <div className="titleRow"><h3>Análise do mercado</h3></div>
             <div className="analysis">
-              No cenário atual, os principais pontos para sua carteira são:
               <ul>
-                <li><strong>Crédito privado:</strong> acompanhar risco de emissor, pagamentos e reprecificações.</li>
-                <li><strong>Bitcoin:</strong> tendência construtiva, mas com volatilidade elevada.</li>
-                <li><strong>Dólar:</strong> pode aliviar no curto prazo, mas fiscal e FED seguem dominantes.</li>
-                <li><strong>Projeção:</strong> agora calculada por segmento, sem multiplicador arbitrário.</li>
+                <li><strong>Bitcoin:</strong> {btc.summary}</li>
+                <li><strong>Dólar:</strong> {dollar.summary}</li>
+                <li><strong>Investimentos:</strong> os valores ocultáveis continuam limitados à sua carteira, projeção e planilha.</li>
+                <li><strong>Notícias:</strong> agora cada item pode abrir a matéria original.</li>
               </ul>
             </div>
           </div>
