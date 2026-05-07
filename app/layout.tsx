@@ -1,7 +1,7 @@
 import './globals.css';
 
 export const metadata = {
-  title: 'Johnny Dash Premium',
+  title: 'Johnny Dash V17',
   description: 'Dashboard financeiro premium'
 };
 
