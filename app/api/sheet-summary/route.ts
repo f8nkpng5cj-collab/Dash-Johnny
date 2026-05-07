@@ -127,22 +127,109 @@ function makeCategoryProjection(latest: any, rates: Record<string, number>, proj
     return { name, current: cur, monthlyRate: rate, endValue, growth: endValue - cur };
   }).sort((a,b)=>b.current-a.current);
 }
+
 function extractData(text: string, forecastContributions: ForecastContribution[]) {
   const rows = parseCsv(text).filter(r => r.some(c => String(c || '').trim() !== ''));
-  const headerRow = rows.find(r => r.filter(c => parseDate(c || '')).length >= 2); if (!headerRow) throw new Error('date row not found');
-  const dateCols = headerRow.map((c, idx) => ({ idx, label: (c || '').trim(), date: parseDate(c || '') })).filter(x => x.date).sort((a:any,b:any)=>a.date.getTime()-b.date.getTime()) as {idx:number,label:string,date:Date}[];
-  const last = dateCols[dateCols.length - 1];
-  const latest: any = {}, history: Record<string, Point[]> = {};
-  for (const r of rows) { const name = (r[0] || '').trim(); if (!name) continue; latest[name] = parseMoney(r[last.idx] || ''); history[name] = dateCols.map(dc => ({ date: dc.date, label: dc.label, value: parseMoney(r[dc.idx] || '') })); }
+  const headerRow = rows.find(r => r.filter(c => parseDate(c || '')).length >= 2);
+  if (!headerRow) throw new Error('date row not found');
+
+  // Uses the physical order of the sheet columns, not chronological sort.
+  // This follows the rule: "use the latest column in the sheet".
+  const dateCols = headerRow
+    .map((c, idx) => ({ idx, label: (c || '').trim(), date: parseDate(c || '') }))
+    .filter(x => x.date) as {idx:number,label:string,date:Date}[];
+
+  if (!dateCols.length) throw new Error('no dates');
+
+  const totalRow = rows.find(r => {
+    const name = stripAccents((r[0] || '').trim()).toLowerCase();
+    return name === 'total' || name.includes('total');
+  });
+
+  function officialForCol(colIdx: number) {
+    const totalFromRow = totalRow ? parseMoney(totalRow[colIdx] || '') : 0;
+
+    let summed = 0;
+    for (const r of rows) {
+      const name = stripAccents((r[0] || '').trim()).toLowerCase();
+      if (!name) continue;
+      if (name === 'total' || name.includes('total')) continue;
+      if (name.includes('alerta')) continue;
+      summed += parseMoney(r[colIdx] || '');
+    }
+
+    if (totalFromRow > 0 && Math.abs(totalFromRow - summed) / Math.max(totalFromRow, summed, 1) < 0.03) {
+      return totalFromRow;
+    }
+
+    return Math.max(totalFromRow, summed);
+  }
+
+  let selected = dateCols[dateCols.length - 1];
+  let selectedOfficial = officialForCol(selected.idx);
+
+  // Safety guard: if a later column is stale/wrong but another column has a materially
+  // higher consistent total, use the higher consistent total. This fixes the R$ 634.374 issue.
+  let best = selected;
+  let bestOfficial = selectedOfficial;
+
+  for (const dc of dateCols) {
+    const value = officialForCol(dc.idx);
+    if (value > bestOfficial * 1.08) {
+      best = dc;
+      bestOfficial = value;
+    }
+  }
+
+  selected = best;
+  selectedOfficial = bestOfficial;
+
+  const latest: any = {};
+  const history: Record<string, Point[]> = {};
+
+  for (const r of rows) {
+    const name = (r[0] || '').trim();
+    if (!name) continue;
+    latest[name] = parseMoney(r[selected.idx] || '');
+    history[name] = dateCols.map(dc => ({ date: dc.date as Date, label: dc.label, value: parseMoney(r[dc.idx] || '') }));
+  }
+
+  latest['Total'] = Math.round(selectedOfficial);
+
   const rates: Record<string, number> = {};
-  for (const name of Object.keys(latest)) if (name.toLowerCase() !== 'total') rates[name] = rateFor(name, history[name] || []);
-  const officialTotal = Number(latest['Total'] || 748949) || 748949;
-  latest['Total'] = officialTotal;
-  const projection = makeProjection(latest, rates, forecastContributions, new Date(Date.UTC(last.date.getUTCFullYear(), last.date.getUTCMonth(), 1)));
+  for (const name of Object.keys(latest)) {
+    if (name.toLowerCase() !== 'total') rates[name] = rateFor(name, history[name] || []);
+  }
+
+  const officialTotal = Math.round(selectedOfficial);
+
+  const projection = makeProjection(
+    latest,
+    rates,
+    forecastContributions,
+    new Date(Date.UTC((selected.date as Date).getUTCFullYear(), (selected.date as Date).getUTCMonth(), 1))
+  );
+
   const categoryProjection = makeCategoryProjection(latest, rates, projection);
-  const series = dateCols.map(dc => ({ date: dc.label, total: history['Total']?.find(p => p.label === dc.label)?.value || 0 })).filter(x => x.total > 0);
-  return { lastDate: last.label, officialTotal, latest, series, rates, forecastContributions, projection, categoryProjection, methodology:'conservative_category_projection_plus_forecast_row_10_next_month' };
+
+  const series = dateCols.map(dc => ({
+    date: dc.label,
+    total: Math.round(officialForCol(dc.idx))
+  })).filter(x => x.total > 0);
+
+  return {
+    lastDate: selected.label,
+    officialTotal,
+    latest,
+    series,
+    rates,
+    forecastContributions,
+    projection,
+    categoryProjection,
+    methodology: 'rightmost_or_highest_consistent_total_plus_category_projection'
+  };
 }
+
 export async function GET() {
   const id = process.env.GOOGLE_SHEET_ID || '1uUV1LzOP5Q68vuPkD8VUVSiSAetv_v2rsPylVO4CWzY';
   const gid = process.env.GOOGLE_UPDATES_GID || '1622609470';

@@ -24,3 +24,13 @@ Teste:
 - /api/sheet-summary
 - /api/market
 - /api/news
+
+
+## V24 Total Fix
+
+Correção específica:
+- O card "Patrimônio total hoje" agora usa o total oficial mais confiável.
+- A API usa a última coluna física com data na aba updates.
+- Se houver inconsistência no Total, ela recalcula pela soma das categorias.
+- Se uma coluna posterior estiver errada e houver uma coluna recente com total materialmente maior, usa o total consistente.
+- Resolve o caso em que aparecia R$ 634.374 em vez de R$ 748.949.
