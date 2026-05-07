@@ -13,35 +13,36 @@ function sparkFrom(values: number[], w = 220, h = 58) {
 }
 
 function trend(change: number) {
-  if (change > 0.4) return 'Alta';
-  if (change < -0.4) return 'Baixa';
+  if (change > 0.35) return 'Alta';
+  if (change < -0.35) return 'Baixa';
   return 'Neutra';
 }
 
-export async function GET() {
+function safeNumber(value: any) {
+  if (value === null || value === undefined) return 0;
+  const n = Number(String(value).replace(',', '.'));
+  return Number.isFinite(n) ? n : 0;
+}
+
+async function getBitcoin() {
   try {
-    const [btcRes, btcChartRes, usdRes] = await Promise.all([
-      fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true', { cache: 'no-store' }),
-      fetch('https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=7&interval=daily', { cache: 'no-store' }),
-      fetch('https://economia.awesomeapi.com.br/json/last/USD-BRL', { cache: 'no-store' })
+    const [btcRes, btcChartRes] = await Promise.all([
+      fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true', {
+        cache: 'no-store',
+        headers: { accept: 'application/json' }
+      }),
+      fetch('https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=7&interval=daily', {
+        cache: 'no-store',
+        headers: { accept: 'application/json' }
+      })
     ]);
 
-    const btcJson = await btcRes.json();
-    const btcChart = await btcChartRes.json().catch(() => ({ prices: [] }));
-    const usdJson = await usdRes.json();
+    const btcJson = btcRes.ok ? await btcRes.json() : {};
+    const btcChart = btcChartRes.ok ? await btcChartRes.json().catch(() => ({ prices: [] })) : { prices: [] };
 
-    const btcPrice = Number(btcJson?.bitcoin?.usd || 0);
-    const btcChange = Number(btcJson?.bitcoin?.usd_24h_change || 0);
-    const btcPrices = Array.isArray(btcChart?.prices) ? btcChart.prices.map((p:any) => Number(p[1])) : [];
-
-    const usdData = usdJson?.USDBRL || {};
-    const bid = Number(usdData.bid || 0);
-    const pctChange = Number(usdData.pctChange || 0);
-    const high = Number(usdData.high || 0);
-    const low = Number(usdData.low || 0);
-
-    const btcTrend = trend(btcChange);
-    const dollarTrend = trend(pctChange);
+    const btcPrice = safeNumber(btcJson?.bitcoin?.usd);
+    const btcChange = safeNumber(btcJson?.bitcoin?.usd_24h_change);
+    const btcPrices = Array.isArray(btcChart?.prices) ? btcChart.prices.map((p:any) => safeNumber(p[1])).filter(Boolean) : [];
 
     const btcSummary =
       btcChange > 0
@@ -50,39 +51,123 @@ export async function GET() {
           ? 'Bitcoin opera em queda no curto prazo. A tendência exige cautela, pois correções podem acelerar com dólar forte ou juros elevados.'
           : 'Bitcoin está lateral no curto prazo. Mercado aguarda novos sinais de liquidez e fluxo institucional.';
 
-    const dollarSummary =
-      pctChange > 0
-        ? 'Dólar sobe contra o real. Isso pode indicar maior aversão a risco, preocupação fiscal ou ajuste nas expectativas de juros.'
-        : pctChange < 0
-          ? 'Dólar recua contra o real. A leitura sugere alívio de curto prazo, maior apetite a risco ou expectativa de diferencial de juros favorável.'
-          : 'Dólar está estável no curto prazo. Mercado aguarda novos dados de inflação, fiscal e política monetária.';
-
-    return NextResponse.json({
-      updatedAt: new Date().toISOString(),
-      bitcoin: {
-        priceUsd: btcPrice,
-        change24h: btcChange,
-        trend: btcTrend,
-        summary: btcSummary,
-        sparkPath: sparkFrom(btcPrices)
-      },
-      dollar: {
-        bid,
-        pctChange,
-        high,
-        low,
-        trend: dollarTrend,
-        summary: dollarSummary,
-        sparkPath: pctChange >= 0
-          ? 'M0 44 L22 40 L44 38 L66 34 L88 35 L110 30 L132 28 L154 24 L176 22 L198 18 L220 14'
-          : 'M0 14 L22 18 L44 20 L66 24 L88 28 L110 30 L132 34 L154 36 L176 40 L198 42 L220 46'
-      }
-    });
+    return {
+      priceUsd: btcPrice,
+      change24h: btcChange,
+      trend: trend(btcChange),
+      summary: btcSummary,
+      sparkPath: sparkFrom(btcPrices),
+      source: 'CoinGecko'
+    };
   } catch {
-    return NextResponse.json({
-      updatedAt: new Date().toISOString(),
-      bitcoin: { priceUsd: 0, change24h: 0, trend: 'Neutra', summary: 'Não foi possível carregar Bitcoin agora. Verifique o deploy ou tente novamente.', sparkPath: '' },
-      dollar: { bid: 0, pctChange: 0, high: 0, low: 0, trend: 'Neutra', summary: 'Não foi possível carregar dólar agora. Verifique o deploy ou tente novamente.', sparkPath: '' }
-    });
+    return {
+      priceUsd: 0,
+      change24h: 0,
+      trend: 'Neutra',
+      summary: 'Não foi possível carregar Bitcoin agora. O dólar continua sendo buscado separadamente.',
+      sparkPath: '',
+      source: 'fallback'
+    };
   }
+}
+
+async function getDollarFromAwesomeApi() {
+  const res = await fetch('https://economia.awesomeapi.com.br/json/last/USD-BRL', {
+    cache: 'no-store',
+    headers: { accept: 'application/json' }
+  });
+
+  if (!res.ok) throw new Error('AwesomeAPI failed');
+
+  const json = await res.json();
+  const data = json?.USDBRL || json?.['USD-BRL'] || Object.values(json || {})[0] as any;
+
+  const bid = safeNumber(data?.bid || data?.ask || data?.high);
+  if (!bid) throw new Error('AwesomeAPI returned empty bid');
+
+  return {
+    bid,
+    pctChange: safeNumber(data?.pctChange),
+    high: safeNumber(data?.high),
+    low: safeNumber(data?.low),
+    source: 'AwesomeAPI'
+  };
+}
+
+async function getDollarFromFrankfurter() {
+  const res = await fetch('https://api.frankfurter.app/latest?from=USD&to=BRL', {
+    cache: 'no-store',
+    headers: { accept: 'application/json' }
+  });
+
+  if (!res.ok) throw new Error('Frankfurter failed');
+
+  const json = await res.json();
+  const bid = safeNumber(json?.rates?.BRL);
+  if (!bid) throw new Error('Frankfurter returned empty BRL');
+
+  return {
+    bid,
+    pctChange: 0,
+    high: bid,
+    low: bid,
+    source: 'Frankfurter'
+  };
+}
+
+async function getDollar() {
+  let data: any;
+
+  try {
+    data = await getDollarFromAwesomeApi();
+  } catch {
+    try {
+      data = await getDollarFromFrankfurter();
+    } catch {
+      data = {
+        bid: 0,
+        pctChange: 0,
+        high: 0,
+        low: 0,
+        source: 'fallback'
+      };
+    }
+  }
+
+  const dollarTrend = trend(data.pctChange);
+
+  const dollarSummary =
+    data.bid === 0
+      ? 'Não foi possível carregar o dólar agora. Verifique se a API externa respondeu no deploy.'
+      : data.pctChange > 0
+        ? 'Dólar sobe contra o real. Isso pode indicar maior aversão a risco, preocupação fiscal ou ajuste nas expectativas de juros.'
+        : data.pctChange < 0
+          ? 'Dólar recua contra o real. A leitura sugere alívio de curto prazo, maior apetite a risco ou expectativa de diferencial de juros favorável.'
+          : 'Dólar está estável ou sem variação diária disponível na fonte atual. Use o valor como referência de câmbio, não como sinal isolado de tendência.';
+
+  return {
+    bid: data.bid,
+    pctChange: data.pctChange,
+    high: data.high || data.bid,
+    low: data.low || data.bid,
+    trend: dollarTrend,
+    summary: dollarSummary,
+    source: data.source,
+    sparkPath: data.pctChange >= 0
+      ? 'M0 44 L22 40 L44 38 L66 34 L88 35 L110 30 L132 28 L154 24 L176 22 L198 18 L220 14'
+      : 'M0 14 L22 18 L44 20 L66 24 L88 28 L110 30 L120 34 L154 36 L176 40 L198 42 L220 46'
+  };
+}
+
+export async function GET() {
+  const [bitcoin, dollar] = await Promise.all([
+    getBitcoin(),
+    getDollar()
+  ]);
+
+  return NextResponse.json({
+    updatedAt: new Date().toISOString(),
+    bitcoin,
+    dollar
+  });
 }

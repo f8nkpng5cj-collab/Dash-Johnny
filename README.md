@@ -27,3 +27,13 @@ johnny123
 /api/market
 /api/news
 /api/sheet-summary
+
+
+## V21 Dollar Fix
+
+Correção específica:
+- O dólar não zera mais se a API do Bitcoin falhar.
+- Busca USD/BRL primeiro na AwesomeAPI.
+- Se a AwesomeAPI falhar, usa Frankfurter como fallback.
+- Parser aceita `USDBRL`, `USD-BRL` ou primeiro objeto retornado pela API.
+- Endpoint de teste: `/api/market`
