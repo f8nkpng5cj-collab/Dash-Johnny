@@ -1,33 +1,25 @@
-# Johnny Dash V18
+# Johnny Dash V19
 
-Versão refeita com:
-- correção do problema de senha
-- senha padrão de teste: johnny123
-- suporte ao link aberto do Google Sheets
-- leitura da aba `updates` por nome e também por GID
-- fallback se a planilha ainda não permitir CSV público
-- layout premium com mais detalhes
+Revisão solicitada:
+- gráfico de projeção dinâmico com tooltip no mouse
+- valores por mês ao passar o mouse
+- segmentos principais no tooltip
+- projeção até dez/2027 usando média de valorização por segmento
+- sem pico arbitrário em dez/2027
+- trava por segmento para não confundir aporte com valorização
 
 ## Variáveis na Vercel
 
-Obrigatória se quiser trocar a senha:
 DASHBOARD_PASSWORD=sua_senha
-
-Recomendadas para a planilha:
 GOOGLE_SHEET_ID=1uUV1LzOP5Q68vuPkD8VUVSiSAetv_v2rsPylVO4CWzY
 GOOGLE_UPDATES_GID=1622609470
 GOOGLE_UPDATES_SHEET=updates
 
-## Senha
+Opcional:
+MONTHLY_CONTRIBUTION=1500
 
-Se você não configurar `DASHBOARD_PASSWORD`, a senha será:
+## Senha padrão se não configurar variável
 johnny123
 
-## Testes depois do deploy
-
-1. Abra o site e entre com a senha.
-2. Teste a leitura da planilha:
-   /api/sheet-summary
-
-Se aparecer `connected: true`, está lendo o Google Sheets.
-Se aparecer fallback, a planilha ainda não está liberando CSV público.
+## Testar depois do deploy
+/api/sheet-summary

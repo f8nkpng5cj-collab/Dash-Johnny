@@ -3,6 +3,7 @@
   --muted:rgba(255,255,255,.68);
   --green:#1fdb73;
   --red:#ff5264;
+  --amber:#f7b84b;
 }
 *{box-sizing:border-box}
 html,body{padding:0;margin:0}
@@ -26,9 +27,7 @@ button,input{font:inherit}
 .loginTitle{font-size:42px;font-weight:900;margin:0 0 8px}
 .loginSub{color:var(--muted);margin-bottom:18px}
 .loginInput{width:100%;padding:14px 16px;background:#090909;color:#fff;border:1px solid rgba(255,255,255,.12);border-radius:14px;margin-bottom:14px}
-.primaryBtn,.hide{
-  border:none;background:#fff;color:#000;padding:11px 18px;border-radius:999px;font-weight:900;cursor:pointer;
-}
+.primaryBtn,.hide{border:none;background:#fff;color:#000;padding:11px 18px;border-radius:999px;font-weight:900;cursor:pointer}
 .error{color:#ff8c97;font-size:13px;margin-top:10px}
 .page{min-height:100vh;display:flex;position:relative;overflow:hidden}
 .sidebar{
@@ -43,14 +42,10 @@ button,input{font:inherit}
 .brand{font-size:34px;font-weight:900;letter-spacing:1px}
 .brandMini{font-size:12px;color:var(--muted);text-transform:uppercase;margin-top:8px}
 .menu{display:flex;flex-direction:column;gap:10px}
-.item{
-  padding:14px;border-radius:12px;display:flex;gap:12px;align-items:center;border:1px solid transparent;color:#f1f1f1;
-}
+.item{padding:14px;border-radius:12px;display:flex;gap:12px;align-items:center;border:1px solid transparent;color:#f1f1f1}
 .item.active{background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.03));border-color:rgba(255,255,255,.28)}
 .ico{width:18px;height:18px;border-radius:4px;border:1.6px solid rgba(255,255,255,.9)}
-.sideBottom{
-  position:absolute;left:12px;right:12px;bottom:16px;border-top:1px solid var(--line);padding-top:14px;color:var(--muted);font-size:13px;line-height:1.45;
-}
+.sideBottom{position:absolute;left:12px;right:12px;bottom:16px;border-top:1px solid var(--line);padding-top:14px;color:var(--muted);font-size:13px;line-height:1.45}
 .main{flex:1;padding:16px}
 .hero{
   min-height:164px;border-radius:24px;border:1px solid var(--line);overflow:hidden;position:relative;margin-bottom:14px;
@@ -70,10 +65,7 @@ button,input{font:inherit}
 .ball{position:absolute;right:28px;bottom:14px;width:88px;height:88px;border-radius:50%;border:2px solid rgba(255,255,255,.4);opacity:.7}
 .ball:before,.ball:after{content:"";position:absolute;inset:14px;border-radius:50%;border:1px dashed rgba(255,255,255,.22)}
 .topStats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}
-.card{
-  background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.025));
-  border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:0 10px 28px rgba(0,0,0,.35);
-}
+.card{background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.025));border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:0 10px 28px rgba(0,0,0,.35)}
 .stat{display:flex;align-items:center;gap:14px;min-height:92px}
 .statIcon{width:42px;height:42px;border-radius:50%;border:1px solid rgba(255,255,255,.35);display:flex;align-items:center;justify-content:center}
 .kLabel{font-size:13px;text-transform:uppercase;color:#ededed;margin-bottom:8px}
@@ -83,29 +75,34 @@ button,input{font:inherit}
 .titleRow{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
 .titleRow h3{margin:0;text-transform:uppercase;font-size:16px}
 .ghost{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.14);color:#fff;padding:8px 12px;border-radius:10px}
-.legend{display:flex;gap:18px;font-size:12px;color:#ddd;margin-bottom:10px}
-.lineChip,.dotChip{display:inline-block;vertical-align:middle;margin-right:6px}
+.legend{display:flex;gap:18px;font-size:12px;color:#ddd;margin-bottom:10px;flex-wrap:wrap}
+.lineChip,.dotChip,.segChip{display:inline-block;vertical-align:middle;margin-right:6px}
 .lineChip{width:24px;height:2px;background:#fff}
 .dotChip{width:18px;height:0;border-top:2px dotted rgba(255,255,255,.8)}
+.segChip{width:10px;height:10px;border-radius:50%;background:#aaa}
 .chart{
-  height:290px;border-radius:14px;border:1px solid rgba(255,255,255,.06);overflow:hidden;position:relative;
+  height:330px;border-radius:14px;border:1px solid rgba(255,255,255,.06);overflow:hidden;position:relative;
   background:
     linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,.01)),
-    repeating-linear-gradient(to top, transparent 0, transparent 47px, rgba(255,255,255,.06) 48px),
+    repeating-linear-gradient(to top, transparent 0, transparent 53px, rgba(255,255,255,.06) 54px),
     repeating-linear-gradient(to right, transparent 0, transparent 74px, rgba(255,255,255,.04) 75px);
 }
 .chart svg{position:absolute;inset:0;width:100%;height:100%}
+.tooltip{
+  position:absolute;z-index:9;min-width:230px;max-width:280px;padding:12px;border-radius:14px;
+  border:1px solid rgba(255,255,255,.16);background:rgba(0,0,0,.88);box-shadow:0 10px 30px rgba(0,0,0,.45);
+  pointer-events:none;font-size:12px;line-height:1.42;
+}
+.tipTitle{font-size:13px;font-weight:900;margin-bottom:8px}
+.tipRow{display:flex;justify-content:space-between;gap:10px;margin:3px 0;color:#ddd}
+.axisText{font-size:11px;fill:rgba(255,255,255,.62)}
 .note{margin-top:12px;color:var(--muted);font-size:12px;line-height:1.45}
 .newsList{display:flex;flex-direction:column;gap:10px}
-.news{
-  display:grid;grid-template-columns:44px 1fr auto;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.07)
-}
+.news{display:grid;grid-template-columns:44px 1fr auto;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.07)}
 .news:last-child{border-bottom:none}
 .badge{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff}
 .badge.fs{background:#1f1f22}.badge.brf{background:#f37021}.badge.rz{background:#9d2cff}.badge.btc{background:#f7931a}.badge.usd{background:#36b56c}
-.news h4{margin:0 0 4px;font-size:13px}
-.news p{margin:0;font-size:12px;line-height:1.38;color:#e2e2e2}
-.newsTime{font-size:12px;color:#d0d0d0;text-align:right}
+.news h4{margin:0 0 4px;font-size:13px}.news p{margin:0;font-size:12px;line-height:1.38;color:#e2e2e2}.newsTime{font-size:12px;color:#d0d0d0;text-align:right}
 .stack{display:flex;flex-direction:column;gap:12px}
 .marketHead{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
 .marketName{display:flex;gap:10px;align-items:center;font-size:14px;font-weight:900;text-transform:uppercase}
@@ -114,12 +111,8 @@ button,input{font:inherit}
 .marketVal{font-size:22px;font-weight:900}.up{color:var(--green);font-weight:900}.down{color:var(--red);font-weight:900}
 .marketMeta{display:flex;justify-content:space-between;gap:12px}
 .spark{height:66px;border-top:1px solid rgba(255,255,255,.07);margin-top:10px;padding-top:8px}
-.spark svg{width:100%;height:58px}
-.bullets{margin-top:12px;font-size:12px;line-height:1.45;color:#dedede}
-.pie{
-  width:170px;height:170px;border-radius:50%;margin:0 auto 14px;position:relative;
-  background:conic-gradient(#efefef 0 36%, #cfcfcf 36% 54%, #a8a8a8 54% 69%, #8d8d8d 69% 79%, #6f6f6f 79% 86%, #5b5b5b 86% 92%, #454545 92% 100%);
-}
+.spark svg{width:100%;height:58px}.bullets{margin-top:12px;font-size:12px;line-height:1.45;color:#dedede}
+.pie{width:170px;height:170px;border-radius:50%;margin:0 auto 14px;position:relative;background:conic-gradient(#efefef 0 36%, #cfcfcf 36% 54%, #a8a8a8 54% 69%, #8d8d8d 69% 79%, #6f6f6f 79% 86%, #5b5b5b 86% 92%, #454545 92% 100%)}
 .pie:after{content:"";position:absolute;inset:34px;border-radius:50%;background:#0a0a0a;border:1px solid rgba(255,255,255,.08)}
 .pieCenter{position:absolute;inset:0;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
 .legendList{display:flex;flex-direction:column;gap:8px;font-size:12px}.legendRow{display:flex;justify-content:space-between;gap:8px}
