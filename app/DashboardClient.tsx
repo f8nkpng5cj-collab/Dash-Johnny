@@ -72,6 +72,7 @@ export default function DashboardClient() {
   const latest = sheet?.latest || defaultLatest;
   const projection = sheet?.projection?.length ? sheet.projection : defaultProjection;
   const rates = sheet?.rates || {};
+  const forecastAportes = sheet?.forecastContributions || [];
   const totalAtual = Number(latest['Total'] || defaultLatest['Total']);
   const lastProjection = projection[projection.length - 1] || defaultProjection[defaultProjection.length - 1];
   const projectionEnd = Number(lastProjection.total || totalAtual);
@@ -146,7 +147,7 @@ export default function DashboardClient() {
 
         <section className="topStats">
           <div className="card stat"><div className="statIcon">🏦</div><div><div className="kLabel">Patrimônio total</div><div className="kValue">{hideInvestment(show, money(totalAtual))}</div></div></div>
-          <div className="card stat"><div className="statIcon">↗</div><div><div className="kLabel">Aportes projetados</div><div className="kValue">{hideInvestment(show, money(aportes))}</div></div></div>
+          <div className="card stat"><div className="statIcon">↗</div><div><div className="kLabel">Aportes Forecast</div><div className="kValue">{hideInvestment(show, money(aportes))}</div></div></div>
           <div className="card stat"><div className="statIcon">💲</div><div><div className="kLabel">Valorização estimada</div><div className="kValue">{hideInvestment(show, money(rendimentos))}</div></div></div>
           <div className="card stat"><div className="statIcon">🎯</div><div><div className="kLabel">Projeção Dez/2027</div><div className="kValue">{hideInvestment(show, money(projectionEnd))}</div></div></div>
         </section>
@@ -175,8 +176,9 @@ export default function DashboardClient() {
             </div>
             <div className="note">
               A projeção usa <strong>média de valorização por segmento</strong>, calculada a partir da aba <strong>updates</strong>.
-              Ao ocultar, somente os valores de investimentos são escondidos. Bitcoin e dólar continuam visíveis.
-              <br />Base: <strong>{sheet?.lastDate || '07/05/2026'}</strong>. Método: <strong>{sheet?.methodology || 'segment_average_with_caps'}</strong>.
+              Os aportes vêm da aba <strong>Forecast</strong>, linha <strong>10</strong>, sempre a partir do mês seguinte ao mês atual.
+              <br />Ao ocultar, somente os valores de investimentos são escondidos. Bitcoin e dólar continuam visíveis.
+              <br />Base: <strong>{sheet?.lastDate || '07/05/2026'}</strong>. Método: <strong>{sheet?.methodology || 'segment_average_with_caps_plus_forecast_row_10'}</strong>.
             </div>
           </div>
 
@@ -219,8 +221,16 @@ export default function DashboardClient() {
         <section className="bottomGrid">
           <div className="card">
             <div className="titleRow"><h3>Taxas médias por segmento</h3></div>
-            <table className="table"><thead><tr><th>Segmento</th><th>Média mensal usada</th></tr></thead><tbody>{Object.entries(rates).slice(0,10).map(([k,v], i)=><tr key={i}><td>{k}</td><td>{(Number(v)*100).toFixed(2)}%</td></tr>)}</tbody></table>
-            <div className="hint">Taxas com trava por segmento para evitar interpretar aporte como valorização.</div>
+            <table className="table"><thead><tr><th>Segmento</th><th>Média mensal usada</th></tr></thead><tbody>{Object.entries(rates).slice(0,7).map(([k,v], i)=><tr key={i}><td>{k}</td><td>{(Number(v)*100).toFixed(2)}%</td></tr>)}</tbody></table>
+            <div className="hint">
+              Taxas com trava por segmento para evitar interpretar aporte como valorização.<br />
+              <strong>Aportes do Forecast, linha 10:</strong>
+              <table className="table" style={{marginTop:8}}>
+                <tbody>
+                  {forecastAportes.slice(0,6).map((a:any, i:number)=><tr key={i}><td>{a.month}</td><td>{show ? money(Number(a.value)) : '••••••'}</td></tr>)}
+                </tbody>
+              </table>
+            </div>
           </div>
 
           <div className="card">

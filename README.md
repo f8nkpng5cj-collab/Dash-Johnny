@@ -37,3 +37,18 @@ Correção específica:
 - Se a AwesomeAPI falhar, usa Frankfurter como fallback.
 - Parser aceita `USDBRL`, `USD-BRL` ou primeiro objeto retornado pela API.
 - Endpoint de teste: `/api/market`
+
+
+## V22 Forecast Aportes
+
+Novo:
+- Lê a aba `Forecast`
+- Usa a linha 10 como linha de aportes
+- Usa apenas os meses a partir do mês seguinte ao mês atual
+- Aportes são somados na projeção mês a mês até Dez/2027
+- Aporte acumulado aparece no tooltip do gráfico
+- O bucket de aportes também valoriza pela média ponderada da carteira
+
+Variáveis opcionais:
+GOOGLE_FORECAST_SHEET=Forecast
+GOOGLE_FORECAST_GID=
