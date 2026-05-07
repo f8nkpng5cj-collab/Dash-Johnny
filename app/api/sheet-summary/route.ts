@@ -56,8 +56,8 @@ function segmentDefaults(name: string) {
   if (s.includes('fgts')) return { def: annualToMonthly(0.03), min: annualToMonthly(0.03), max: annualToMonthly(0.03) };
 
   // Premissas conservadoras para os demais blocos.
-  if (s.includes('cript') || s.includes('bitcoin')) return { def: 0.012, min: -0.03, max: 0.035 };
-  if (s.includes('ações') || s.includes('acao')) return { def: 0.008, min: -0.015, max: 0.018 };
+  if (s.includes('cript') || s.includes('bitcoin')) return { def: 0.012, min: 0.03, max: 0.035 };
+  if (s.includes('ações') || s.includes('acao')) return { def: 0.008, min: 0.015, max: 0.018 };
   if (s.includes('saldo') || s.includes('cofre') || s.includes('moeda')) return { def: 0.0055, min: 0, max: 0.008 };
   if (s.includes('fixa') || s.includes('fundo') || s.includes('coe') || s.includes('vgbl')) return { def: 0.0078, min: 0.002, max: 0.012 };
   return { def: 0.0065, min: 0, max: 0.014 };
