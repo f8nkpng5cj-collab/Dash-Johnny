@@ -1,8 +1,7 @@
 import './globals.css'
 
 export const metadata = {
-  title: 'Johnny Dash',
-  description: 'Dashboard financeiro pessoal'
+  title:'Johnny Dash Premium'
 }
 
 export default function RootLayout({children}:{children:React.ReactNode}){

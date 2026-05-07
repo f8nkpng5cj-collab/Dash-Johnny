@@ -1,5 +1,5 @@
 {
-  "name": "johnnydash",
+  "name": "johnnydash-premium",
   "private": true,
   "version": "1.0.0",
   "scripts": {
@@ -10,13 +10,11 @@
   "dependencies": {
     "next": "14.2.15",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "recharts": "^2.12.7"
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "typescript": "^5.4.5",
-    "@types/node": "^20.14.10",
     "@types/react": "^18.3.3",
-    "@types/react-dom": "^18.3.0"
+    "@types/node": "^20.14.10"
   }
 }
