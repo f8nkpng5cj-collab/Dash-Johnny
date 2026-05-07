@@ -118,11 +118,11 @@ export default function DashboardClient() {
       <main className="main">
         <section className="hero heroReal">
           <div className="nerdStage">
-            <img className="heroBgWide" src="/assets/gow-valhalla.webp" alt="God of War background" />
-            <img className="watermarkImg watermarkBioReal" src="/assets/leon-real.jpg" alt="Leon watermark" />
-            <img className="watermarkImg watermarkBallReal" src="/assets/gow-omega.jpg" alt="Omega watermark" />
-            <img className="watermarkImg watermarkWarReal" src="/assets/gow-ragnarok.jpg" alt="God of War watermark" />
-            <img className="watermarkImg watermarkCorReal" src="/assets/corinthians-real.png" alt="Corinthians watermark" />
+            <img className="heroBgWide" src="/assets/gow-ragnarok.jpg" alt="God of War Ragnarök background" />
+            <img className="watermarkImg watermarkBioReal" src="/assets/leon-real.jpg" alt="Leon S. Kennedy" />
+            <img className="watermarkImg watermarkBallReal" src="/assets/gow-omega.jpg" alt="God of War Omega symbol" />
+            <img className="watermarkImg watermarkWarReal" src="/assets/gow-valhalla.webp" alt="God of War Valhalla" />
+            <img className="watermarkImg watermarkCorReal" src="/assets/corinthians-real.png" alt="Corinthians" />
           </div>
           <div className="heroSplit">
             <div className="heroInner">
@@ -133,7 +133,7 @@ export default function DashboardClient() {
                   <p>Foco, disciplina e execução</p>
                 </div>
               </div>
-              <div className="signature">Dashboard premium, com mercado, projeções, futebol e cultura nerd, usando suas imagens reais como identidade visual.</div>
+              <div className="signature">Dashboard pessoal — mercado, patrimônio, futebol e cultura.</div>
               <div className="nerdChips">
                 <div className="nerdChip">Corinthians</div>
                 <div className="nerdChip">Leon S. Kennedy</div>
@@ -141,8 +141,8 @@ export default function DashboardClient() {
                 <div className="nerdChip">God of War</div>
                 <div className="nerdChip">Ragnarök</div>
               </div>
-              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:16,gap:12,flexWrap:'wrap'}}>
-                <button className="hide" onClick={() => setShow(v => !v)}>{show ? 'Ocultar investimentos' : 'Mostrar investimentos'}</button>
+              <div style={{display:'flex',alignItems:'center',marginTop:14,gap:10,flexWrap:'wrap'}}>
+                <button className="hide" onClick={() => setShow(v => !v)}>{show ? 'Ocultar valores' : 'Mostrar valores'}</button>
                 <button className="ghost" onClick={logout}>Sair</button>
               </div>
             </div>
@@ -154,9 +154,7 @@ export default function DashboardClient() {
               </div>
             </div>
           </div>
-          <div className="water1">S.T.A.R.S. • RAGNARÖK • SCCP</div>
           <div className="water2"><strong>LEON S. KENNEDY</strong><span>Mission: survive</span></div>
-          <div className="ball"></div>
         </section>
 
         <section className="topStats">
