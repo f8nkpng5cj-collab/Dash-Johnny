@@ -94,18 +94,53 @@ export default function DashboardClient() {
   return (
     <div className="page">
       <aside className="sidebar">
-        <div className="logoTop"><div className="crest">SCCP</div><div className="brand">JOHNNY DASH</div><div className="brandMini">Foco, disciplina e execução</div><div className="brandMini" style={{marginTop:8}}>Leon S. Kennedy • Futebol • Mercado</div></div>
+        <div className="logoTop">
+          <div className="logoBadge">
+            <img src="/assets/corinthians-badge.svg" alt="Corinthians badge" />
+            <div>
+              <div className="brand">JOHNNY DASH</div>
+              <div className="brandMini">Foco, disciplina e execução</div>
+            </div>
+          </div>
+          <div className="brandMini" style={{marginTop:8}}>Leon S. Kennedy • Futebol • Mercado</div>
+        </div>
         <div className="menu">
           <div className="item active"><span className="ico"></span> DASHBOARD</div><div className="item"><span className="ico"></span> PROJEÇÃO</div><div className="item"><span className="ico"></span> CONTROLE</div><div className="item"><span className="ico"></span> NOTÍCIAS</div><div className="item"><span className="ico"></span> MERCADO</div><div className="item"><span className="ico"></span> CLIMA</div><div className="item"><span className="ico"></span> RELATÓRIOS</div><div className="item"><span className="ico"></span> CONFIGURAÇÕES</div>
+        </div>
+        <div className="sidebarTheme">
+          <div className="sidebarThemeRow"><img src="/assets/corinthians-badge.svg" alt="Corinthians" /><span>Corinthians, alma competitiva</span></div>
+          <div className="sidebarThemeRow"><img src="/assets/resident-mark.svg" alt="Resident Evil inspired" /><span>Resident Evil, clima tático e sombrio</span></div>
+          <div className="sidebarThemeRow"><img src="/assets/godofwar-mark.svg" alt="God of War inspired" /><span>God of War, força e disciplina</span></div>
         </div>
         <div className="sideBottom"><strong>Corinthians</strong><br />“Disciplina é fazer o que tem que ser feito, mesmo quando você não está motivado.”</div>
       </aside>
 
       <main className="main">
         <section className="hero">
-          <div className="heroInner">
-            <h1>JOHNNY DASH</h1><p>Foco, disciplina e execução</p><div className="signature">Acompanhamento financeiro diário, estilo premium.</div>
-            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:16}}><button className="hide" onClick={() => setShow(v => !v)}>{show ? 'Ocultar investimentos' : 'Mostrar investimentos'}</button><button className="ghost" onClick={logout}>Sair</button></div>
+          <div className="nerdStage">
+            <img className="watermarkImg watermarkBio" src="/assets/resident-mark.svg" alt="Resident Evil inspired watermark" />
+            <img className="watermarkImg watermarkBall" src="/assets/football-mark.svg" alt="Football watermark" />
+            <img className="watermarkImg watermarkWar" src="/assets/godofwar-mark.svg" alt="God of War inspired watermark" />
+            <img className="watermarkImg watermarkCor" src="/assets/corinthians-badge.svg" alt="Corinthians watermark" />
+          </div>
+          <div className="heroSplit">
+            <div className="heroInner">
+              <h1>JOHNNY DASH</h1><p>Foco, disciplina e execução</p><div className="signature">Mercado, disciplina, futebol e cultura nerd, em um dashboard premium.</div>
+              <div className="nerdChips">
+                <div className="nerdChip">Corinthians</div>
+                <div className="nerdChip">Resident Evil</div>
+                <div className="nerdChip">Leon S. Kennedy</div>
+                <div className="nerdChip">God of War</div>
+              </div>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:16}}><button className="hide" onClick={() => setShow(v => !v)}>{show ? 'Ocultar investimentos' : 'Mostrar investimentos'}</button><button className="ghost" onClick={logout}>Sair</button></div>
+            </div>
+            <div className="heroArtWrap">
+              <div className="heroArtCard">
+                <img src="/assets/leon-card.svg" alt="Leon S. Kennedy inspired panel" />
+                <div className="cornerBadge badgeCorinthians"><img src="/assets/corinthians-badge.svg" alt="Corinthians" /><div><strong>Corinthians</strong><span>Identidade visual</span></div></div>
+                <div className="cornerBadge badgeWar"><img src="/assets/godofwar-mark.svg" alt="God of War" /><div><strong>God of War</strong><span>Força e foco</span></div></div>
+              </div>
+            </div>
           </div>
           <div className="water1">S.T.A.R.S.</div><div className="water2"><strong>LEON S. KENNEDY</strong><span>Mission: survive</span></div><div className="ball"></div>
         </section>
@@ -158,6 +193,12 @@ export default function DashboardClient() {
             <div className="totalBox"><div className="kLabel">Total atual, inclui FGTS e proposta quando estiverem no Total</div><strong>{hideInvestment(show, money(totalAtual))}</strong><div className="note">Esse é o número que você citou: <strong>R$ 748.949</strong>. Agora ele aparece explicitamente no dashboard.</div></div>
             <table className="table"><thead><tr><th>Categoria</th><th>Último valor</th><th>% do total</th></tr></thead><tbody>{Object.entries(latest).filter(([k])=>k!=='Total').slice(0,12).map(([k,v],i)=><tr key={i}><td>{k}</td><td>{show?money(Number(v)):'••••••'}</td><td>{totalAtual?((Number(v)/totalAtual)*100).toFixed(1):'0.0'}%</td></tr>)}</tbody></table>
           </div>
+        </section>
+
+        <section className="miniThemedGrid">
+          <div className="card themeCard"><h4>Corinthians</h4><p>Presença visual mais forte com escudo, marca d'água e identidade preto e branco.</p><img src="/assets/corinthians-badge.svg" alt="Corinthians themed card" /></div>
+          <div className="card themeCard"><h4>Resident Evil</h4><p>Painel do Leon, selo S.T.A.R.S. e marca d'água inspirada em Raccoon City.</p><img src="/assets/resident-mark.svg" alt="Resident Evil themed card" /></div>
+          <div className="card themeCard"><h4>God of War</h4><p>Elemento secundário com símbolo inspirado, trazendo peso visual sem poluir a tela.</p><img src="/assets/godofwar-mark.svg" alt="God of War themed card" /></div>
         </section>
 
         <section className="bottomGrid">

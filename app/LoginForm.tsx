@@ -25,7 +25,7 @@ export default function LoginForm() {
     <div className="loginWrap">
       <form className="loginCard" onSubmit={handleSubmit}>
         <h1 className="loginTitle">JOHNNY DASH</h1>
-        <div className="loginSub">Acesso privado ao seu dashboard premium.</div>
+        <div className="loginSub">Acesso privado ao seu dashboard premium. Senha padrão de teste: <strong>johnny123</strong>.</div>
         <input className="loginInput" type="password" placeholder="Digite sua senha" value={password} onChange={(e) => setPassword(e.target.value)} />
         <button className="primaryBtn" type="submit">Entrar</button>
         {error ? <div className="error">{error}</div> : null}

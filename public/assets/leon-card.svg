@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="560" height="720" viewBox="0 0 560 720">
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a0c"/><stop offset="1" stop-color="#191d24"/></linearGradient><linearGradient id="sil" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f1f1f1" stop-opacity="0.95"/><stop offset="1" stop-color="#8b96a8" stop-opacity="0.92"/></linearGradient></defs>
+<rect width="560" height="720" rx="34" fill="url(#bg)"/>
+<circle cx="405" cy="120" r="110" fill="#fff" opacity="0.06"/>
+<text x="48" y="70" fill="#ffffff" font-size="40" font-family="Arial" font-weight="800">LEON S. KENNEDY</text>
+<text x="48" y="104" fill="#d7d7d7" font-size="18" font-family="Arial">RESIDENT EVIL, inspired panel</text>
+<path d="M308 188 C342 186 370 202 381 233 C392 262 386 298 382 332 C378 365 393 405 411 452 C430 505 426 580 419 640 L219 640 C220 576 204 520 181 466 C157 409 150 356 155 304 C160 254 184 220 220 201 C243 189 276 185 308 188 Z" fill="url(#sil)" opacity="0.94"/>
+<path d="M225 226 C241 188 286 169 322 176 C333 183 332 195 324 204 C315 212 307 227 306 242 C304 255 296 261 280 261 C263 262 248 254 236 242 C229 237 224 233 225 226 Z" fill="#ccd4df"/>
+<rect x="249" y="309" width="88" height="120" rx="16" fill="#10131a" opacity="0.95"/>
+<path d="M188 338 C154 357 132 386 116 415" stroke="#d0d6e0" stroke-width="22" stroke-linecap="round" opacity="0.95"/>
+<path d="M371 338 C408 360 439 395 457 430" stroke="#d0d6e0" stroke-width="22" stroke-linecap="round" opacity="0.95"/>
+<rect x="92" y="400" width="110" height="34" rx="12" fill="#111826" opacity="0.95" transform="rotate(-23 92 400)"/>
+<text x="48" y="676" fill="#ffffff" font-size="26" font-family="Arial" font-weight="700">MISSION: SURVIVE</text>
+<text x="48" y="705" fill="#d0d0d0" font-size="14" font-family="Arial">Umbra, neon and tactical noir aesthetic</text>
+</svg>

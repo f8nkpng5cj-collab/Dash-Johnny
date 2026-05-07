@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="480" viewBox="0 0 480 480">
+<rect width="480" height="480" fill="none"/>
+<g opacity="0.16" transform="translate(240 240)">
+<circle cx="0" cy="0" r="28" fill="#fff"/>
+<path d="M0 -26 C58 -96 130 -102 174 -58 C128 -40 96 -6 86 36 C70 104 112 152 164 182 C94 212 30 190 -10 132 C-34 97 -52 77 -86 73 C-160 63 -204 122 -222 172 C-244 104 -212 34 -154 -6 C-129 -22 -112 -37 -110 -58 C-103 -129 -48 -180 20 -193 C-10 -150 -11 -115 9 -84 C26 -59 14 -35 0 -26 Z" fill="#fff"/>
+</g>
+<text x="240" y="442" text-anchor="middle" fill="#ffffff" opacity="0.32" font-family="Arial" font-size="30" font-weight="800">RACCOON CITY</text>
+</svg>

@@ -44,3 +44,20 @@ Atualização solicitada:
 - Aporte mensal de FGTS considerado em R$ 2.700.
 - Variável opcional: `FGTS_MONTHLY_CONTRIBUTION=2700`.
 - Ao ocultar valores, os valores do eixo Y do gráfico também são ocultados.
+
+
+## V26 Nerd Layout
+
+Atualização visual:
+- escudo estilizado do Corinthians no layout
+- painel visual inspirado em Leon S. Kennedy / Resident Evil
+- símbolo inspirado em God of War
+- marca d'água de futebol
+- visual mais nerd e premium, mantendo o dashboard funcional
+
+Arquivos adicionados:
+- public/assets/corinthians-badge.svg
+- public/assets/leon-card.svg
+- public/assets/godofwar-mark.svg
+- public/assets/resident-mark.svg
+- public/assets/football-mark.svg

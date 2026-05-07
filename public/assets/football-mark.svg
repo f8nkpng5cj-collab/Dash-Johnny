@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="260" height="260" viewBox="0 0 260 260">
+<circle cx="130" cy="130" r="116" fill="none" stroke="#ffffff" stroke-width="6" opacity="0.22"/>
+<polygon points="130,74 155,92 146,120 114,120 105,92" fill="#ffffff" opacity="0.2"/>
+<path d="M105 92 L74 105 L66 136 L88 160 L114 120" fill="#ffffff" opacity="0.16"/>
+<path d="M155 92 L186 105 L194 136 L172 160 L146 120" fill="#ffffff" opacity="0.16"/>
+<path d="M88 160 L102 194 L130 208 L158 194 L172 160 L130 138 Z" fill="#ffffff" opacity="0.18"/>
+</svg>
