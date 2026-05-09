@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 const fallbackNews = [
   { cls: 'fs', badge: 'FS', name: 'FS Florestal', title: 'Monitoramento FS Florestal', text: 'Monitorar pagamentos realizados, saúde do CRA e novas divulgações operacionais.', date: '06/05/2026', link: '#' },
@@ -8,30 +10,59 @@ const fallbackNews = [
   { cls: 'rz', badge: 'RZ', name: 'Raízen', title: 'Monitoramento Raízen', text: 'Mercado atento ao setor de energia, dívida, reprecificação e notícias de crédito.', date: '06/05/2026', link: '#' }
 ];
 
-const weatherDays = [
-  ['TER','06','🌧','23°','18°','Chuva'],['QUA','07','🌦','22°','17°','Chove cedo'],['QUI','08','⛅','24°','18°','Pouca chuva'],['SEX','09','☀️','25°','18°','Sem chuva'],
-  ['SÁB','10','🌤','26°','19°','Sem chuva'],['DOM','11','🌧','24°','19°','Chuva à tarde'],['SEG','12','⛅','23°','17°','Baixa chance'],['TER','13','🌧','22°','16°','Chuva fraca']
-];
+// Generate an eight–day forecast starting tomorrow. Each entry contains
+// [weekday abbreviation, day of month, icon, max temp, min temp, description].
+const weatherDays = (() => {
+  const days = ['DOM','SEG','TER','QUA','QUI','SEX','SÁB'];
+  const icons = ['☀️','⛅','🌧','🌦','🌤'];
+  const out: [string,string,string,string,string,string][] = [];
+  const now = new Date();
+  for (let i = 1; i <= 8; i++) {
+    const d = new Date(now);
+    d.setDate(now.getDate() + i);
+    const wd = days[d.getDay()];
+    const dayStr = String(d.getDate()).padStart(2,'0');
+    // Use a simple repeating sequence for icons and descriptions to avoid past dates.
+    const icon = icons[i % icons.length];
+    const maxTemp = '';
+    const minTemp = '';
+    const desc = '';
+    out.push([wd, dayStr, icon, maxTemp, minTemp, desc]);
+  }
+  return out;
+})();
 
+// Default latest values serve only as a fall‑back when no Google Sheet is connected.
+// They are intentionally kept at zero to avoid showing misleading portfolio numbers.  When the
+// sheet loads successfully, these values are replaced with the real data from the spreadsheet.
 const defaultLatest: Record<string, number> = {
-  'Ações': 243, 'Saldo Corretora': 11405, 'fundo invest': 155442, 'COE': 12384, 'VGBL': 61306,
-  'fixa': 300406, 'Cofre': 0, 'FGTS': 91166, 'Investimentos USA': 97327, 'MOEDAS (EURO)': 1855,
-  'Cript': 17415, 'Total': 748949
+  'Ações': 0,
+  'Saldo Corretora': 0,
+  'fundo invest': 0,
+  'COE': 0,
+  'VGBL': 0,
+  'fixa': 0,
+  'Cofre': 0,
+  'FGTS': 0,
+  'Investimentos USA': 0,
+  'MOEDAS (EURO)': 0,
+  'Cript': 0,
+  'Total': 0
 };
 
 const defaultProjection = [
-  { month: 'Mai/26', total: 748949, contribution: 0, monthlyContribution: 0, segments: defaultLatest },
-  { month: 'Jun/26', total: 756801, contribution: 0, monthlyContribution: 0, segments: defaultLatest },
-  { month: 'Jul/26', total: 764744, contribution: 0, monthlyContribution: 0, segments: defaultLatest },
-  { month: 'Ago/26', total: 772781, contribution: 0, monthlyContribution: 0, segments: defaultLatest },
-  { month: 'Set/26', total: 780913, contribution: 0, monthlyContribution: 0, segments: defaultLatest },
-  { month: 'Out/26', total: 789143, contribution: 0, monthlyContribution: 0, segments: defaultLatest },
-  { month: 'Nov/26', total: 797472, contribution: 0, monthlyContribution: 0, segments: defaultLatest },
-  { month: 'Dez/26', total: 805902, contribution: 0, monthlyContribution: 0, segments: defaultLatest },
-  { month: 'Mar/27', total: 832000, contribution: 0, monthlyContribution: 0, segments: defaultLatest },
-  { month: 'Jun/27', total: 860000, contribution: 0, monthlyContribution: 0, segments: defaultLatest },
-  { month: 'Set/27', total: 889000, contribution: 0, monthlyContribution: 0, segments: defaultLatest },
-  { month: 'Dez/27', total: 920000, contribution: 0, monthlyContribution: 0, segments: defaultLatest }
+  { month: 'Mai/26', total: 0, contribution: 0, monthlyContribution: 0, segments: defaultLatest },
+  { month: 'Jun/26', total: 0, contribution: 0, monthlyContribution: 0, segments: defaultLatest },
+  { month: 'Jul/26', total: 0, contribution: 0, monthlyContribution: 0, segments: defaultLatest },
+  { month: 'Ago/26', total: 0, contribution: 0, monthlyContribution: 0, segments: defaultLatest },
+  { month: 'Set/26', total: 0, contribution: 0, monthlyContribution: 0, segments: defaultLatest },
+  { month: 'Out/26', total: 0, contribution: 0, monthlyContribution: 0, segments: defaultLatest },
+  { month: 'Nov/26', total: 0, contribution: 0, monthlyContribution: 0, segments: defaultLatest },
+  { month: 'Dez/26', total: 0, contribution: 0, monthlyContribution: 0, segments: defaultLatest },
+  { month: 'Mar/27', total: 0, contribution: 0, monthlyContribution: 0, segments: defaultLatest },
+  { month: 'Jun/27', total: 0, contribution: 0, monthlyContribution: 0, segments: defaultLatest },
+  { month: 'Set/27', total: 0, contribution: 0, monthlyContribution: 0, segments: defaultLatest },
+  { month: 'Dez/27', total: 0, contribution: 0, monthlyContribution: 0, segments: defaultLatest }
 ];
 
 function money(v:number){ return new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(v || 0); }
@@ -91,82 +122,57 @@ export default function DashboardClient() {
 
   async function logout() { await fetch('/api/logout', { method: 'POST' }); window.location.reload(); }
 
+  // Determine the current path to highlight the active menu item. The sidebar links
+  // use this value to set the `active` class.
+  const pathname = usePathname();
+
   return (
     <div className="page">
       <aside className="sidebar">
         <div className="logoTop">
           <div className="logoBadge">
-            <img src="/assets/corinthians-real.png" alt="Corinthians badge" />
+            {/* Simplified branding without team or game logos */}
             <div>
               <div className="brand">JOHNNY DASH</div>
               <div className="brandMini">Foco, disciplina e execução</div>
             </div>
           </div>
-          <div className="brandMini" style={{marginTop:8}}>Leon S. Kennedy • Futebol • Mercado</div>
         </div>
-        <div className="menu">
-          <div className="item active"><span className="ico"></span> DASHBOARD</div><div className="item"><span className="ico"></span> PROJEÇÃO</div><div className="item"><span className="ico"></span> CONTROLE</div><div className="item"><span className="ico"></span> NOTÍCIAS</div><div className="item"><span className="ico"></span> MERCADO</div><div className="item"><span className="ico"></span> CLIMA</div><div className="item"><span className="ico"></span> RELATÓRIOS</div><div className="item"><span className="ico"></span> CONFIGURAÇÕES</div>
-        </div>
-        <div className="sidebarTheme">
-          <div className="sidebarThemeRow"><img src="/assets/corinthians-real.png" alt="Corinthians" /><span>Corinthians, identidade e raça</span></div>
-          <div className="sidebarThemeRow"><img src="/assets/leon-real.jpg" alt="Leon, Resident Evil" /><span>Leon S. Kennedy, estética tática</span></div>
-          <div className="sidebarThemeRow"><img src="/assets/gow-omega.jpg" alt="God of War" /><span>God of War, força e presença épica</span></div>
-        </div>
-        <div className="sideBottom"><strong>Corinthians</strong><br />“Disciplina é fazer o que tem que ser feito, mesmo quando você não está motivado.”</div>
+        {/* Navigation links become real sub‑page links. CLIMA has been removed as a separate page. */}
+        <nav className="menu">
+          <Link href="/" className={`item ${pathname === '/' ? 'active' : ''}`}><span className="ico"></span> DASHBOARD</Link>
+          <Link href="/projecao" className={`item ${pathname === '/projecao' ? 'active' : ''}`}><span className="ico"></span> PROJEÇÃO</Link>
+          <Link href="/controle" className={`item ${pathname === '/controle' ? 'active' : ''}`}><span className="ico"></span> CONTROLE</Link>
+          <Link href="/noticias" className={`item ${pathname === '/noticias' ? 'active' : ''}`}><span className="ico"></span> NOTÍCIAS</Link>
+          <Link href="/mercado" className={`item ${pathname === '/mercado' ? 'active' : ''}`}><span className="ico"></span> MERCADO</Link>
+          <Link href="/relatorios" className={`item ${pathname === '/relatorios' ? 'active' : ''}`}><span className="ico"></span> RELATÓRIOS</Link>
+          <Link href="/configuracoes" className={`item ${pathname === '/configuracoes' ? 'active' : ''}`}><span className="ico"></span> CONFIGURAÇÕES</Link>
+        </nav>
       </aside>
 
       <main className="main">
-        <section className="hero heroReal">
-          <div className="nerdStage">
-            <img className="heroBgWide" src="/assets/gow-ragnarok.jpg" alt="God of War Ragnarök background" />
-            <img className="watermarkImg watermarkBioReal" src="/assets/leon-real.jpg" alt="Leon S. Kennedy" />
-            <img className="watermarkImg watermarkBallReal" src="/assets/gow-omega.jpg" alt="God of War Omega symbol" />
-            <img className="watermarkImg watermarkWarReal" src="/assets/gow-valhalla.webp" alt="God of War Valhalla" />
-            <img className="watermarkImg watermarkCorReal" src="/assets/corinthians-real.png" alt="Corinthians" />
-          </div>
-          <div className="heroSplit">
-            <div className="heroInner">
-              <div className="logoBadge realBadge">
-                <img src="/assets/corinthians-real.png" alt="Corinthians" />
-                <div>
-                  <h1>JOHNNY DASH</h1>
-                  <p>Foco, disciplina e execução</p>
-                </div>
-              </div>
-              <div className="signature">Dashboard pessoal — mercado, patrimônio, futebol e cultura.</div>
-              <div className="nerdChips">
-                <div className="nerdChip">Corinthians</div>
-                <div className="nerdChip">Leon S. Kennedy</div>
-                <div className="nerdChip">Resident Evil</div>
-                <div className="nerdChip">God of War</div>
-                <div className="nerdChip">Ragnarök</div>
-              </div>
-              <div style={{display:'flex',alignItems:'center',marginTop:14,gap:10,flexWrap:'wrap'}}>
-                <button className="hide" onClick={() => setShow(v => !v)}>{show ? 'Ocultar valores' : 'Mostrar valores'}</button>
-                <button className="ghost" onClick={logout}>Sair</button>
-              </div>
-            </div>
-            <div className="heroArtWrap">
-              <div className="heroArtCard realHeroCard">
-                <img src="/assets/leon-real.jpg" alt="Leon S. Kennedy" />
-                <div className="cornerBadge badgeCorinthians"><img src="/assets/corinthians-real.png" alt="Corinthians" /><div><strong>Corinthians</strong><span>Minha identidade</span></div></div>
-                <div className="cornerBadge badgeWar"><img src="/assets/gow-omega.jpg" alt="God of War" /><div><strong>God of War</strong><span>Força e foco</span></div></div>
-              </div>
+        {/* Simplified hero without images or themed watermarks. */}
+        <section className="heroClean">
+          <div className="heroInnerClean">
+            <h1 className="heroTitle">Johnny&nbsp;Dash</h1>
+            <p className="heroSubtitle">Seu dashboard financeiro premium com projeções de longo prazo, mercado e notícias.</p>
+            <div className="heroActions">
+              <button className="hide" onClick={() => setShow(v => !v)}>{show ? 'Ocultar investimentos' : 'Mostrar investimentos'}</button>
+              <button className="ghost" onClick={logout}>Sair</button>
             </div>
           </div>
-          <div className="water2"><strong>LEON S. KENNEDY</strong><span>Mission: survive</span></div>
         </section>
 
         <section className="topStats">
           <div className="card stat"><div className="statIcon">🏦</div><div><div className="kLabel">Patrimônio total hoje</div><div className="kValue">{hideInvestment(show, money(totalAtual))}</div></div></div>
           <div className="card stat"><div className="statIcon">↗</div><div><div className="kLabel">Aportes Forecast</div><div className="kValue">{hideInvestment(show, money(aportes))}</div></div></div>
           <div className="card stat"><div className="statIcon">💲</div><div><div className="kLabel">Valorização estimada</div><div className="kValue">{hideInvestment(show, money(rendimentos))}</div></div></div>
-          <div className="card stat"><div className="statIcon">🎯</div><div><div className="kLabel">Projeção Dez/2027</div><div className="kValue">{hideInvestment(show, money(projectionEnd))}</div></div></div>
+          <div className="card stat"><div className="statIcon">🎯</div><div><div className="kLabel">Projeção Dez/2035</div><div className="kValue">{hideInvestment(show, money(projectionEnd))}</div></div></div>
         </section>
 
         <section className="grid">
           <div className="card">
-            <div className="titleRow"><h3>Projeção patrimonial dinâmica até dez/2027</h3></div>
+            <div className="titleRow"><h3>Projeção patrimonial dinâmica até dez/2035</h3></div>
             <div className="legend"><div><span className="lineChip"></span> Patrimônio projetado por categoria</div><div><span className="dotChip"></span> Aportes Forecast</div><div><span className="segChip"></span> Tooltip ao passar o mouse</div></div>
             <div className="chart" onMouseMove={onChartMove} onMouseLeave={() => setHover(null)}>
               <svg viewBox="0 0 900 330" preserveAspectRatio="none">
@@ -178,7 +184,7 @@ export default function DashboardClient() {
               </svg>
               {hover && <div className="tooltip" style={{left:Math.min(hover.left+10,520),top:Math.max(hover.top-30,10)}}><div className="tipTitle">{hover.month}</div><div className="tipRow"><span>Patrimônio</span><strong>{show?money(Number(hover.total)):'••••••'}</strong></div><div className="tipRow"><span>Aporte acumulado</span><strong>{show?money(Number(hover.contribution||0)):'••••••'}</strong></div><div className="tipRow"><span>Aporte do mês</span><strong>{show?money(Number(hover.monthlyContribution||0)):'••••••'}</strong></div><div style={{marginTop:8,color:'#bbb'}}>Principais categorias:</div>{topSegments(hover.segments).map(([k,v]:any,idx:number)=><div className="tipRow" key={idx}><span>{k}</span><strong>{show?money(Number(v)):'••••••'}</strong></div>)}</div>}
             </div>
-            <div className="note">A base oficial agora aparece como <strong>{hideInvestment(show, money(totalAtual))}</strong>, incluindo FGTS e proposta quando vierem no Total da planilha. A projeção usa 4% ao ano para Investimentos USA, 3% ao ano para FGTS e considera aporte mensal de R$ 2.700 no FGTS. Ao ocultar, os valores do eixo do gráfico também somem.</div>
+            <div className="note">A base oficial agora aparece como <strong>{hideInvestment(show, money(totalAtual))}</strong>, incluindo FGTS e proposta quando vierem no Total da planilha. A projeção usa 4% ao ano para Investimentos USA, 3% ao ano para FGTS e considera aporte mensal de R$ 2.700 no FGTS. Ao ocultar, os valores do eixo do gráfico também desaparecem.</div>
           </div>
 
           <div className="card">
@@ -195,23 +201,19 @@ export default function DashboardClient() {
 
         <section className="wideGrid">
           <div className="card">
-            <div className="titleRow"><h3>Projeção por categoria até Dez/2027</h3><span className={sheet?.connected?'good':'warn'}>{sheet?.connected?'▣ Dados da planilha':'Fallback'}</span></div>
+            <div className="titleRow"><h3>Projeção por categoria até Dez/2035</h3><span className={sheet?.connected?'good':'warn'}>{sheet?.connected?'▣ Dados da planilha':'Fallback'}</span></div>
             <table className="table"><thead><tr><th>Categoria</th><th>Hoje</th><th>Taxa mensal</th><th>Dez/2027</th><th>Crescimento</th></tr></thead><tbody>{categoryProjection.slice(0,12).map((r:any,i:number)=><tr key={i}><td>{r.name}</td><td>{show?money(Number(r.current)):'••••••'}</td><td>{(Number(r.monthlyRate)*100).toFixed(2)}%</td><td>{show?money(Number(r.endValue)):'••••••'}</td><td>{show?money(Number(r.growth)):'••••••'}</td></tr>)}</tbody></table>
             <div className="hint">Premissas: Investimentos USA em 4% ao ano, FGTS em 3% ao ano + R$ 2.700/mês, renda fixa/fundos/VGBL/COE conservadores, Cript limitada para não distorcer a projeção.</div>
           </div>
 
           <div className="card">
             <div className="titleRow"><h3>Controle Google Sheets, soma oficial</h3><span className={sheet?.connected?'good':'warn'}>{sheet?.connected?'▣ Conectado':'Fallback'}</span></div>
-            <div className="totalBox"><div className="kLabel">Total atual, inclui FGTS e proposta quando estiverem no Total</div><strong>{hideInvestment(show, money(totalAtual))}</strong><div className="note">Esse é o número que você citou: <strong>R$ 748.949</strong>. Agora ele aparece explicitamente no dashboard.</div></div>
+            <div className="totalBox"><div className="kLabel">Total atual, inclui FGTS e proposta quando estiverem no Total</div><strong>{hideInvestment(show, money(totalAtual))}</strong></div>
             <table className="table"><thead><tr><th>Categoria</th><th>Último valor</th><th>% do total</th></tr></thead><tbody>{Object.entries(latest).filter(([k])=>k!=='Total').slice(0,12).map(([k,v],i)=><tr key={i}><td>{k}</td><td>{show?money(Number(v)):'••••••'}</td><td>{totalAtual?((Number(v)/totalAtual)*100).toFixed(1):'0.0'}%</td></tr>)}</tbody></table>
           </div>
         </section>
 
-        <section className="miniThemedGrid">
-          <div className="card themeCard realCard"><h4>Corinthians</h4><p>Escudo real aplicado na identidade do dashboard, com presença visual mais forte e premium.</p><img src="/assets/corinthians-real.png" alt="Corinthians themed card" /></div>
-          <div className="card themeCard realCard"><h4>Resident Evil</h4><p>Leon como destaque principal, trazendo o clima tático e sombrio que você pediu.</p><img src="/assets/leon-real.jpg" alt="Resident Evil themed card" /></div>
-          <div className="card themeCard realCard"><h4>God of War</h4><p>Elementos de Ragnarök e Valhalla como apoio visual, com o símbolo ômega como detalhe de impacto.</p><img src="/assets/gow-omega.jpg" alt="God of War themed card" /></div>
-        </section>
+        {/* Removed mini themed grid in favour of a cleaner look */}
 
         <section className="bottomGrid">
           <div className="card"><div className="titleRow"><h3>Aportes Forecast</h3></div><table className="table"><thead><tr><th>Mês</th><th>Aporte</th></tr></thead><tbody>{(sheet?.forecastContributions||[]).slice(0,8).map((a:any,i:number)=><tr key={i}><td>{a.month}</td><td>{show?money(Number(a.value)):'••••••'}</td></tr>)}</tbody></table><div className="hint">Aba Forecast, linha 10, sempre do mês seguinte em diante.</div></div>

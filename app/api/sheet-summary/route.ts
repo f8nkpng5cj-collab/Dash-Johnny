@@ -84,7 +84,10 @@ function parseForecastContributions(text: string, currentDate = new Date()) {
   const aporteRow = rows[9] || [];
   const currentMonth = new Date(Date.UTC(currentDate.getUTCFullYear(), currentDate.getUTCMonth(), 1));
   const nextMonth = new Date(Date.UTC(currentMonth.getUTCFullYear(), currentMonth.getUTCMonth() + 1, 1));
-  const end = new Date(Date.UTC(2027, 11, 1));
+  // Extend forecast parsing to go out to the end of 2035. Previously this stopped in
+  // December 2027 which prevented showing longer–term contributions. The new
+  // limit matches the user's request for projections through 2035.
+  const end = new Date(Date.UTC(2035, 11, 1));
   let headerIdx = -1, bestScore = 0;
   for (let r = 0; r < Math.min(rows.length, 15); r++) { let score = 0; for (const cell of rows[r]) if (parseMonthHeader(cell, currentDate.getUTCFullYear())) score++; if (score > bestScore) { bestScore = score; headerIdx = r; } }
   const out: ForecastContribution[] = [];
@@ -117,11 +120,16 @@ function makeProjection(latest: any, rates: Record<string, number>, forecastCont
   const aportesMap = new Map(forecastContributions.map(a => [a.key, a.value]));
   const blendedRate = weightedAverageRate(latest, rates);
   const fgtsMonthlyContribution = Number(process.env.FGTS_MONTHLY_CONTRIBUTION || '2700') || 2700;
-  const end = new Date(Date.UTC(2027, 11, 1));
+  // Extend projections to December 2035. The previous implementation
+  // truncated results at 2027, which limited long‑term planning. This update
+  // brings the projection window in line with the user’s requirement.
+  const end = new Date(Date.UTC(2035, 11, 1));
   const start = new Date(Date.UTC(startDate.getUTCFullYear(), startDate.getUTCMonth(), 1));
   const projection: any[] = [];
   let m = new Date(start), step = 0, contributionBucket = 0, fgtsBucket = 0, cumulativeContribution = 0;
-  while (m <= end && step < 36) {
+  // Increase the maximum number of projection steps. With a monthly cadence, 9 years
+  // (2027 → 2035) equates to roughly 108 months. Use 120 to provide a buffer.
+  while (m <= end && step < 120) {
     const key = monthKey(m), monthlyAporte = aportesMap.get(key) || 0;
 
     if (step > 0) {
